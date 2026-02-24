@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #006A7A;
+  --color-primary-light: #008A9A;
+  --color-secondary: #E6F0F1;
+  --color-accent: #FF6F61;
+  --color-bg: #F8F9FA;
+  --color-card: #FFFFFF;
+  --color-text: #212529;
+  --color-muted: #6C757D;
+  --color-border: #DEE2E6;
+
+  --color-risk-low: #28A745;
+  --color-risk-moderate: #FFC107;
+  --color-risk-high: #FD7E14;
+  --color-risk-very-high: #DC3545;
+  --color-risk-extreme: #B22222;
+
+  --font-sans: 'Noto Sans TC', 'Lexend', sans-serif;
+  --font-display: 'Lexend', 'Noto Sans TC', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.input-underline {
+  border: none;
+  border-bottom: 2px solid var(--color-border);
+  padding: 12px 4px;
+  background-color: transparent;
+  width: 100%;
+  font-size: 1rem;
+  color: var(--color-text);
+  transition: border-color 0.2s ease-in-out;
+  outline: none;
+}
+.input-underline:focus {
+  border-bottom-color: var(--color-primary);
+}
+.input-underline::placeholder {
+  color: var(--color-muted);
+}
+
+.pill-toggle {
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--color-border);
+  background: white;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.pill-toggle.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+.pill-toggle:hover:not(.active) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 16px;
+}
