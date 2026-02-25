@@ -85,3 +85,86 @@ body {
   color: var(--color-muted);
   margin-bottom: 16px;
 }
+
+/* Responsive Utilities */
+.container-max {
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* InputForm 佈局 */
+.form-outer-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 20px 100px;
+}
+
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.form-left-col,
+.form-right-col {
+  width: 100%;
+}
+
+/* ResultPage 指引卡 */
+.guideline-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .container-max {
+    max-width: 896px;
+  }
+
+  /* InputForm 桌面兩欄 */
+  .form-outer-wrap {
+    max-width: 896px;
+    padding: 24px 24px 40px;
+  }
+
+  .form-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* ResultPage 指引卡三欄 */
+  .guideline-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .desktop-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .mobile-only {
+    display: none !important;
+  }
+
+  /* 結果頁容器 */
+  .result-outer-wrap {
+    max-width: 896px;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .result-outer-wrap {
+    max-width: 520px;
+  }
+}

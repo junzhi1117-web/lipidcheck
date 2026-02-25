@@ -24,7 +24,7 @@ export function ResultPage({ result, onBack }: Props) {
     <div style={{ minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
       <WaveHeader riskLevel={maxRisk} />
 
-      <div style={{ maxWidth: '520px', margin: '0 auto', padding: '20px 20px 40px' }}>
+      <div className="result-outer-wrap" style={{ margin: '0 auto', padding: '20px 20px 40px' }}>
 
         {/* 統合結論 */}
         <div style={{ marginBottom: '20px' }}>
@@ -42,7 +42,7 @@ export function ResultPage({ result, onBack }: Props) {
           <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6C757D', marginBottom: '12px' }}>
             三大指引比較
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="guideline-cards">
             <GuidelineCard result={result.taiwan} />
             <GuidelineCard result={result.accaha} />
             <GuidelineCard result={result.esceas} />
@@ -69,22 +69,25 @@ export function ResultPage({ result, onBack }: Props) {
         </div>
 
         {/* 重新評估按鈕 */}
-        <button
-          onClick={onBack}
-          style={{
-            width: '100%',
-            padding: '14px',
-            borderRadius: '12px',
-            border: '2px solid #006A7A',
-            backgroundColor: 'transparent',
-            color: '#006A7A',
-            fontSize: '0.95rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          ← 重新輸入資料
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={onBack}
+            style={{
+              width: '100%',
+              maxWidth: '360px',
+              padding: '14px',
+              borderRadius: '12px',
+              border: '2px solid #006A7A',
+              backgroundColor: 'transparent',
+              color: '#006A7A',
+              fontSize: '0.95rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            ← 重新輸入資料
+          </button>
+        </div>
       </div>
     </div>
   )

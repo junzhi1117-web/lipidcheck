@@ -28,7 +28,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
+    <div className="min-h-screen bg-[#F8F9FA]">
       <WaveHeader />
       <InputForm onSubmit={handleSubmit} />
     </div>

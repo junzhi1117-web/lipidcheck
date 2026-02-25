@@ -81,7 +81,12 @@ export function InputForm({ onSubmit }: Props) {
   )
 
   return (
-    <div style={{ maxWidth: '520px', margin: '0 auto', padding: '24px 20px 100px' }}>
+    <div className="form-outer-wrap">
+      {/* 桌面兩欄 / 手機單欄 */}
+      <div className="form-layout">
+
+      {/* 左欄：基本資料 + 血脂數值 */}
+      <div className="form-left-col">
 
       {/* 基本資料 */}
       <div className="card" style={{ marginBottom: '16px' }}>
@@ -148,6 +153,11 @@ export function InputForm({ onSubmit }: Props) {
         </div>
       </div>
 
+      </div>{/* end form-left-col */}
+
+      {/* 右欄：共病症 */}
+      <div className="form-right-col">
+
       {/* 共病症 */}
       <div className="card" style={{ marginBottom: '16px' }}>
         <SectionTitle>共病症 / 風險因子</SectionTitle>
@@ -182,8 +192,34 @@ export function InputForm({ onSubmit }: Props) {
         </div>
       </div>
 
-      {/* Sticky CTA */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px', backgroundColor: 'rgba(248,249,250,0.95)', backdropFilter: 'blur(8px)', borderTop: '1px solid #DEE2E6', zIndex: 10 }}>
+      {/* Desktop inline CTA */}
+      <div className="desktop-only" style={{ marginTop: '8px' }}>
+        <button
+          onClick={handleSubmit}
+          disabled={!isValid}
+          style={{
+            width: '100%',
+            padding: '16px',
+            borderRadius: '14px',
+            border: 'none',
+            backgroundColor: isValid ? '#FF6F61' : '#DEE2E6',
+            color: isValid ? 'white' : '#9AA0A6',
+            fontSize: '1rem',
+            fontWeight: 700,
+            cursor: isValid ? 'pointer' : 'not-allowed',
+            transition: 'all 0.2s',
+            letterSpacing: '0.02em',
+          }}
+        >
+          查看分析結果 →
+        </button>
+      </div>
+
+      </div>{/* end form-right-col */}
+      </div>{/* end form-layout */}
+
+      {/* Mobile sticky CTA */}
+      <div className="mobile-only" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px', backgroundColor: 'rgba(248,249,250,0.95)', backdropFilter: 'blur(8px)', borderTop: '1px solid #DEE2E6', zIndex: 10 }}>
         <div style={{ maxWidth: '520px', margin: '0 auto' }}>
           <button
             onClick={handleSubmit}
