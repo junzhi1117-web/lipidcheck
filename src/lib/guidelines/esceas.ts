@@ -70,14 +70,32 @@ export function calcEscEas(input: UserInput): GuidelineResult {
     ldlTarget = 70
     ldlTargetText = '< 70 mg/dL（且較基線降低 ≥ 50%）'
   } else {
-    // 需要 SCORE2
+    // 需要 SCORE2（2021 ESC 依年齡分層門檻，Low-to-Moderate Risk region）
+    // < 50 歲：high ≥ 2.5%，very-high ≥ 7.5%
+    // 50-69 歲：high ≥ 5%，very-high ≥ 10%
+    // ≥ 70 歲：high ≥ 7.5%，very-high ≥ 15%（建議用 SCORE2-OP，此為近似值）
     if (age >= 40 && age <= 79 && sbp > 0) {
       scoreRisk = calcScore2(input)
-      if (scoreRisk >= 10) {
+
+      let veryHighThreshold: number
+      let highThreshold: number
+
+      if (age < 50) {
+        veryHighThreshold = 7.5
+        highThreshold = 2.5
+      } else if (age < 70) {
+        veryHighThreshold = 10
+        highThreshold = 5
+      } else {
+        veryHighThreshold = 15
+        highThreshold = 7.5
+      }
+
+      if (scoreRisk >= veryHighThreshold) {
         riskLevel = 'very-high'
         ldlTarget = 55
         ldlTargetText = '< 55 mg/dL（且較基線降低 ≥ 50%）'
-      } else if (scoreRisk >= 5) {
+      } else if (scoreRisk >= highThreshold) {
         riskLevel = 'high'
         ldlTarget = 70
         ldlTargetText = '< 70 mg/dL（且較基線降低 ≥ 50%）'
