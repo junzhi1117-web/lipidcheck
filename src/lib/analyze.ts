@@ -47,6 +47,25 @@ export function analyze(input: UserInput): AnalysisResult {
     summary = '目前無法計算精確 LDL 目標，建議從生活型態介入（飲食調整、規律運動）開始，並定期追蹤血脂。'
   }
 
+  // 偵測台灣指引比 ACC/ESC 寬鬆時產生提示
+  const otherMaxRisk = [accaha.riskLevel, esceas.riskLevel].reduce(
+    (max, r) => (RISK_ORDER[r] > RISK_ORDER[max] ? r : max),
+    'low' as RiskLevel
+  )
+  let crossGuidelineNote: string | undefined
+  if (RISK_ORDER[taiwan.riskLevel] < RISK_ORDER[otherMaxRisk]) {
+    const twLabel: Record<RiskLevel, string> = {
+      'low': '低風險', 'moderate': '中度風險', 'high': '高風險',
+      'very-high': '非常高風險', 'extreme': '極高風險',
+    }
+    const otherLabel = twLabel[otherMaxRisk]
+    if (otherMaxRisk === 'extreme' && taiwan.riskLevel === 'very-high') {
+      crossGuidelineNote = `台灣指引將您列為「非常高風險（LDL 目標 < 70 mg/dL）」，但歐美主流指引（ACC/AHA、ESC）認為您的病況屬於「極高風險」，建議 LDL 要控制到更低。這個差異源自各指引對合併風險因子的定義不同，建議您主動告訴醫師，一起討論是否需要更積極的治療。`
+    } else {
+      crossGuidelineNote = `台灣指引對您的風險評估（${twLabel[taiwan.riskLevel]}）比歐美指引（${otherLabel}）寬鬆一個等級。建議諮詢醫師時，可以參考國際標準討論是否需要更積極控制膽固醇。`
+    }
+  }
+
   return {
     taiwan,
     accaha,
@@ -56,6 +75,7 @@ export function analyze(input: UserInput): AnalysisResult {
       achieved: strictestTarget !== null ? input.ldl < strictestTarget : null,
       summary,
       consistent,
+      crossGuidelineNote,
     },
     recommendations: {
       diet: getDietRecs(input, maxRisk),

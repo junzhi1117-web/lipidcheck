@@ -34,6 +34,7 @@ export function ResultPage({ result, onBack }: Props) {
             summary={result.consensus.summary}
             consistent={result.consensus.consistent}
             currentLdl={result.taiwan.currentLdl}
+            crossGuidelineNote={result.consensus.crossGuidelineNote}
           />
         </div>
 

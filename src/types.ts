@@ -36,6 +36,7 @@ export interface AnalysisResult {
     achieved: boolean | null
     summary: string
     consistent: boolean
+    crossGuidelineNote?: string
   }
   recommendations: {
     diet: string[]

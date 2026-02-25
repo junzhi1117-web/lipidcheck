@@ -1,4 +1,5 @@
 import type { GuidelineResult } from '../types'
+import { RISK_COLORS } from '../types'
 import { RiskBadge } from './RiskBadge'
 
 interface Props {
@@ -17,53 +18,139 @@ const GUIDELINE_YEARS = {
   esceas: '2025',
 }
 
+const GUIDELINE_FLAGS = {
+  taiwan: '🇹🇼',
+  accaha: '🇺🇸',
+  esceas: '🇪🇺',
+}
+
 export function GuidelineCard({ result }: Props) {
-  const { guideline, riskLevel, ldlTargetText, currentLdl, achieved, tenYearRisk, notes } = result
+  const { guideline, riskLevel, ldlTargetText, ldlTarget, currentLdl, achieved, tenYearRisk, notes } = result
+  const accentColor = RISK_COLORS[riskLevel]
+
+  // LDL 進度條：顯示目前值相對目標的位置
+  const maxBar = ldlTarget !== null ? Math.max(ldlTarget * 1.8, currentLdl * 1.1, 200) : null
+  const targetPct = maxBar && ldlTarget !== null ? Math.min((ldlTarget / maxBar) * 100, 95) : null
+  const currentPct = maxBar ? Math.min((currentLdl / maxBar) * 100, 98) : null
 
   return (
-    <div style={{ flex: 1, minWidth: 0, border: '1px solid #DEE2E6', borderRadius: '12px', padding: '16px', backgroundColor: '#FAFAFA' }}>
-      <div style={{ marginBottom: '12px' }}>
-        <div style={{ fontSize: '0.8rem', color: '#6C757D', fontWeight: 500 }}>
-          {GUIDELINE_YEARS[guideline]}
+    <div style={{
+      flex: 1,
+      minWidth: 0,
+      borderRadius: '14px',
+      backgroundColor: '#FFFFFF',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+      overflow: 'hidden',
+      border: '1px solid #EEEEEE',
+    }}>
+      {/* 彩色頂邊 */}
+      <div style={{ height: '4px', backgroundColor: accentColor }} />
+
+      <div style={{ padding: '16px' }}>
+        {/* 指引名稱 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <span style={{ fontSize: '1.2rem' }}>{GUIDELINE_FLAGS[guideline]}</span>
+          <div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1A1A1A', lineHeight: 1.1 }}>
+              {GUIDELINE_NAMES[guideline]}
+            </div>
+            <div style={{ fontSize: '0.7rem', color: '#9AA0A6', fontWeight: 500 }}>
+              {GUIDELINE_YEARS[guideline]}
+            </div>
+          </div>
         </div>
-        <div style={{ fontSize: '1rem', fontWeight: 700, color: '#212529' }}>
-          {GUIDELINE_NAMES[guideline]}
+
+        {/* 風險等級 */}
+        <div style={{ marginBottom: '12px' }}>
+          <RiskBadge level={riskLevel} size="sm" />
         </div>
+
+        {/* LDL 目標 */}
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ fontSize: '0.7rem', color: '#9AA0A6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
+            LDL-C 目標
+          </div>
+          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1A1A1A', lineHeight: 1.4 }}>
+            {ldlTargetText}
+          </div>
+        </div>
+
+        {/* LDL 進度條 */}
+        {ldlTarget !== null && targetPct !== null && currentPct !== null && (
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{
+              position: 'relative', height: '8px', backgroundColor: '#F0F0F0',
+              borderRadius: '99px', overflow: 'visible', margin: '8px 0 18px',
+            }}>
+              {/* 目標線 */}
+              <div style={{
+                position: 'absolute', left: `${targetPct}%`,
+                top: '-3px', bottom: '-3px', width: '2px',
+                backgroundColor: '#28A745', borderRadius: '2px',
+              }} />
+              <div style={{
+                position: 'absolute', left: `${targetPct}%`,
+                top: '12px', transform: 'translateX(-50%)',
+                fontSize: '0.62rem', color: '#28A745', fontWeight: 600, whiteSpace: 'nowrap',
+              }}>目標 {ldlTarget}</div>
+              {/* 目前值指針 */}
+              <div style={{
+                position: 'absolute', left: `${currentPct}%`,
+                top: '-4px', width: '16px', height: '16px',
+                borderRadius: '50%', backgroundColor: achieved ? '#28A745' : '#DC3545',
+                border: '2px solid white',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                transform: 'translateX(-50%)',
+              }} />
+              <div style={{
+                position: 'absolute', left: `${currentPct}%`,
+                top: '12px', transform: 'translateX(-50%)',
+                fontSize: '0.62rem', color: achieved ? '#28A745' : '#DC3545',
+                fontWeight: 600, whiteSpace: 'nowrap',
+              }}>現在 {currentLdl}</div>
+              {/* 填色軌道 */}
+              <div style={{
+                position: 'absolute', left: 0,
+                width: `${currentPct}%`, height: '8px',
+                backgroundColor: achieved ? '#28A74540' : '#DC354540',
+                borderRadius: '99px',
+              }} />
+            </div>
+          </div>
+        )}
+
+        {/* 達標狀態 */}
+        {achieved !== null && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            padding: '7px 10px', borderRadius: '8px',
+            backgroundColor: achieved ? '#d4edda' : '#fdecea',
+            color: achieved ? '#155724' : '#7B1C1C',
+            fontSize: '0.8rem', fontWeight: 600,
+            marginBottom: notes ? '10px' : 0,
+          }}>
+            <span>{achieved ? '✅' : '❌'}</span>
+            <span>{achieved ? '已達標' : `尚未達標（差 ${(currentLdl - ldlTarget!).toFixed(0)} mg/dL）`}</span>
+          </div>
+        )}
+
+        {/* 10年風險 */}
+        {tenYearRisk !== undefined && (
+          <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#6C757D' }}>
+            10年風險：<strong>{tenYearRisk}%</strong>
+          </div>
+        )}
+
+        {/* 附註 */}
+        {notes && (
+          <div style={{
+            marginTop: '10px', fontSize: '0.72rem', color: '#555',
+            lineHeight: 1.6, borderTop: '1px solid #F0F0F0', paddingTop: '10px',
+          }}>
+            {notes}
+          </div>
+        )}
       </div>
-
-      <div style={{ marginBottom: '10px' }}>
-        <RiskBadge level={riskLevel} size="sm" />
-      </div>
-
-      <div style={{ marginBottom: '8px' }}>
-        <div style={{ fontSize: '0.75rem', color: '#6C757D', marginBottom: '2px' }}>LDL 目標</div>
-        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#212529' }}>{ldlTargetText}</div>
-      </div>
-
-      {achieved !== null && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          padding: '6px 10px', borderRadius: '8px',
-          backgroundColor: achieved ? '#d4edda' : '#f8d7da',
-          color: achieved ? '#155724' : '#721c24',
-          fontSize: '0.8rem', fontWeight: 500
-        }}>
-          <span>{achieved ? '✅' : '❌'}</span>
-          <span>{achieved ? '已達標' : `目前 ${currentLdl} mg/dL，未達標`}</span>
-        </div>
-      )}
-
-      {tenYearRisk !== undefined && (
-        <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#6C757D' }}>
-          10年ASCVD風險：{tenYearRisk}%
-        </div>
-      )}
-
-      {notes && (
-        <div style={{ marginTop: '8px', fontSize: '0.72rem', color: '#6C757D', lineHeight: 1.5, borderTop: '1px solid #DEE2E6', paddingTop: '8px' }}>
-          {notes}
-        </div>
-      )}
     </div>
   )
 }
