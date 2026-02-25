@@ -88,6 +88,7 @@ export function calcAccAha(input: UserInput): GuidelineResult {
         riskLevel = 'very-high'
         ldlTarget = 70
         ldlTargetText = '< 70 mg/dL（建議高強度 statin）'
+        notes = '殘餘風險管理：LDL 達標後建議 non-HDL-C < 100 mg/dL、TG < 150 mg/dL'
       } else if (tenYearRisk >= 7.5) {
         riskLevel = 'high'
         ldlTarget = null

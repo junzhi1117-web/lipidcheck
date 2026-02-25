@@ -33,7 +33,7 @@ export function calcTaiwan(input: UserInput): GuidelineResult {
   // 中度風險：2+ 次級風險因子
   else if (riskFactorCount >= 2) {
     riskLevel = 'moderate'
-    ldlTarget = 100
+    ldlTarget = 115
   }
   // 低風險
   else {
