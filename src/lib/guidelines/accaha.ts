@@ -59,13 +59,13 @@ export function calcAccAha(input: UserInput): GuidelineResult {
 
   // 直接高/極高風險條件（不需 PCE）
   if (ascvd) {
-    // 極高風險：ASCVD + 殘餘高風險因子
-    const hasResidualRisk = dm || ckd !== 'none' || fh || ldl >= 100
+    // 極高風險：ASCVD + 明確的額外高風險因子（DM / CKD / FH）
+    const hasResidualRisk = dm || ckd !== 'none' || fh
     if (hasResidualRisk) {
       riskLevel = 'extreme'
       ldlTarget = 55
-      ldlTargetText = '< 55 mg/dL（LDL 55-69 建議強化治療）'
-      notes = '2025 ACC/AHA ACS 更新：極高風險者 LDL-C < 55 mg/dL 為合理目標'
+      ldlTargetText = '< 55 mg/dL'
+      notes = '建議目標：LDL < 55 mg/dL（依據 ACC/AHA 最新更新）'
     } else {
       riskLevel = 'very-high'
       ldlTarget = 70
@@ -75,7 +75,7 @@ export function calcAccAha(input: UserInput): GuidelineResult {
     riskLevel = 'high'
     ldlTarget = 70
     ldlTargetText = '< 70 mg/dL'
-    notes = 'LDL ≥ 190 mg/dL 或家族性高膽固醇血症，建議高強度 statin'
+    notes = '膽固醇非常高或有家族遺傳，需要醫師評估強效降膽固醇藥物'
   } else if (dm && age >= 40 && age <= 75) {
     riskLevel = 'high'
     ldlTarget = 70
@@ -87,25 +87,25 @@ export function calcAccAha(input: UserInput): GuidelineResult {
       if (tenYearRisk >= 20) {
         riskLevel = 'very-high'
         ldlTarget = 70
-        ldlTargetText = '< 70 mg/dL（建議高強度 statin）'
-        notes = '殘餘風險管理：LDL 達標後建議 non-HDL-C < 100 mg/dL、TG < 150 mg/dL'
+        ldlTargetText = '< 70 mg/dL'
+        notes = '10 年心血管風險較高，建議積極降低膽固醇'
       } else if (tenYearRisk >= 7.5) {
         riskLevel = 'high'
         ldlTarget = null
-        ldlTargetText = '建議降低 LDL ≥ 30–50%'
+        ldlTargetText = '建議降低膽固醇 30–50%'
       } else if (tenYearRisk >= 5) {
         riskLevel = 'moderate'
         ldlTarget = null
-        ldlTargetText = '可考慮降低 LDL 30–50%（視風險增強因子）'
+        ldlTargetText = '可考慮降低膽固醇 30–50%（視整體風險）'
       } else {
         riskLevel = 'low'
         ldlTarget = null
-        ldlTargetText = '生活型態介入為主'
+        ldlTargetText = '以飲食運動調整為主'
       }
     } else {
       riskLevel = 'low'
       ldlTarget = null
-      ldlTargetText = '生活型態介入（年齡或資料不足以計算 PCE）'
+      ldlTargetText = '以飲食運動調整為主（資料不足，無法精確計算）'
     }
   }
 
@@ -116,7 +116,7 @@ export function calcAccAha(input: UserInput): GuidelineResult {
     ldlTargetText,
     currentLdl: input.ldl,
     achieved: ldlTarget !== null ? input.ldl < ldlTarget : null,
-    notes: notes ?? '注意：PCE 係數基於美國白人族群，亞裔實際風險可能低估，僅供參考',
+    notes: notes ?? '注意：此風險計算以美國族群為基準，台灣用戶數值僅供參考',
     tenYearRisk,
   }
 }

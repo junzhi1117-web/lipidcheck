@@ -68,7 +68,7 @@ export function GuidelineCard({ result }: Props) {
         {/* LDL 目標 */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontSize: '0.7rem', color: '#9AA0A6', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
-            LDL-C 目標
+            建議目標值
           </div>
           <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1A1A1A', lineHeight: 1.4 }}>
             {ldlTargetText}
@@ -92,7 +92,7 @@ export function GuidelineCard({ result }: Props) {
                 position: 'absolute', left: `${targetPct}%`,
                 top: '12px', transform: 'translateX(-50%)',
                 fontSize: '0.62rem', color: '#28A745', fontWeight: 600, whiteSpace: 'nowrap',
-              }}>目標 {ldlTarget}</div>
+              }}>目標 &lt;{ldlTarget}</div>
               {/* 目前值指針 */}
               <div style={{
                 position: 'absolute', left: `${currentPct}%`,
@@ -107,7 +107,7 @@ export function GuidelineCard({ result }: Props) {
                 top: '12px', transform: 'translateX(-50%)',
                 fontSize: '0.62rem', color: achieved ? '#28A745' : '#DC3545',
                 fontWeight: 600, whiteSpace: 'nowrap',
-              }}>現在 {currentLdl}</div>
+              }}>您：{currentLdl}</div>
               {/* 填色軌道 */}
               <div style={{
                 position: 'absolute', left: 0,
@@ -130,14 +130,14 @@ export function GuidelineCard({ result }: Props) {
             marginBottom: notes ? '10px' : 0,
           }}>
             <span>{achieved ? '✅' : '❌'}</span>
-            <span>{achieved ? '已達標' : `尚未達標（差 ${(currentLdl - ldlTarget!).toFixed(0)} mg/dL）`}</span>
+            <span>{achieved ? '已達標 🎉' : `還差 ${(currentLdl - ldlTarget!).toFixed(0)} mg/dL`}</span>
           </div>
         )}
 
         {/* 10年風險 */}
         {tenYearRisk !== undefined && (
           <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#6C757D' }}>
-            10年風險：<strong>{tenYearRisk}%</strong>
+            10 年心血管風險：<strong>{tenYearRisk}%</strong>
           </div>
         )}
 

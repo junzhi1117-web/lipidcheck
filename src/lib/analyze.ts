@@ -36,15 +36,15 @@ export function analyze(input: UserInput): AnalysisResult {
   if (strictestTarget !== null) {
     const achieved = input.ldl < strictestTarget
     if (achieved) {
-      summary = `您目前的 LDL-C（${input.ldl} mg/dL）已達到三大指引中最嚴格的目標（< ${strictestTarget} mg/dL）。請繼續維持現有的生活習慣與治療。`
+      summary = `很好！您的膽固醇（${input.ldl} mg/dL）已符合三大指引中最嚴格的目標（< ${strictestTarget} mg/dL）。繼續保持現在的生活習慣就對了。`
     } else {
-      summary = `您目前的 LDL-C（${input.ldl} mg/dL）尚未達到建議目標（< ${strictestTarget} mg/dL）。建議儘快諮詢醫師，討論生活型態調整或藥物治療。`
+      summary = `您的膽固醇（${input.ldl} mg/dL）目前超過建議目標（< ${strictestTarget} mg/dL）。建議找醫師聊聊，討論飲食調整或是否需要用藥。`
     }
     if (!consistent) {
-      summary += ' 三大指引風險分層略有差異，以最保守目標為準。'
+      summary += '（三大指引對您的風險評估略有差異，本建議採用最嚴格的標準。）'
     }
   } else {
-    summary = '目前無法計算精確 LDL 目標，建議從生活型態介入（飲食調整、規律運動）開始，並定期追蹤血脂。'
+    summary = '目前資料不足以給出精確目標值。建議從飲食調整和規律運動開始，並定期回診追蹤。'
   }
 
   // 偵測台灣指引比 ACC/ESC 寬鬆時產生提示
@@ -60,9 +60,9 @@ export function analyze(input: UserInput): AnalysisResult {
     }
     const otherLabel = twLabel[otherMaxRisk]
     if (otherMaxRisk === 'extreme' && taiwan.riskLevel === 'very-high') {
-      crossGuidelineNote = `台灣指引將您列為「非常高風險（LDL 目標 < 70 mg/dL）」，但歐美主流指引（ACC/AHA、ESC）認為您的病況屬於「極高風險」，建議 LDL 要控制到更低。這個差異源自各指引對合併風險因子的定義不同，建議您主動告訴醫師，一起討論是否需要更積極的治療。`
+      crossGuidelineNote = `台灣指引認為您屬於「非常高風險」（膽固醇目標 < 70 mg/dL），但美國和歐洲的指引將您列為「極高風險」，建議目標要更低。這是因為各國指引對風險的計算方式略有不同。建議您就診時告訴醫師，一起討論是否需要更積極的治療。`
     } else {
-      crossGuidelineNote = `台灣指引對您的風險評估（${twLabel[taiwan.riskLevel]}）比歐美指引（${otherLabel}）寬鬆一個等級。建議諮詢醫師時，可以參考國際標準討論是否需要更積極控制膽固醇。`
+      crossGuidelineNote = `台灣指引對您的風險評估（${twLabel[taiwan.riskLevel]}）比歐美指引（${otherLabel}）寬鬆一個等級。就診時可以跟醫師提一下，討論是否需要更積極地控制膽固醇。`
     }
   }
 

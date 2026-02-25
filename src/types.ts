@@ -45,11 +45,11 @@ export interface AnalysisResult {
 }
 
 export const RISK_LABELS: Record<RiskLevel, string> = {
-  'low': '低風險（Low Risk）',
-  'moderate': '中度風險（Moderate Risk）',
-  'high': '高風險（High Risk）',
-  'very-high': '非常高風險（Very High Risk）',
-  'extreme': '極高風險（Extreme Risk）',
+  'low': '低風險',
+  'moderate': '中度風險',
+  'high': '高風險',
+  'very-high': '非常高風險',
+  'extreme': '極高風險',
 }
 
 export const RISK_COLORS: Record<RiskLevel, string> = {

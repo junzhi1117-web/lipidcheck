@@ -45,7 +45,7 @@ export function calcEscEas(input: UserInput): GuidelineResult {
   if (ascvd && (dm || ckd === 'G4' || ckd === 'G5' || fh)) {
     riskLevel = 'extreme'
     ldlTarget = 40
-    ldlTargetText = '< 40 mg/dL（且較基線降低 ≥ 50%）'
+    ldlTargetText = '< 40 mg/dL'
   }
   // 非常高風險
   else if (
@@ -56,7 +56,7 @@ export function calcEscEas(input: UserInput): GuidelineResult {
   ) {
     riskLevel = 'very-high'
     ldlTarget = 55
-    ldlTargetText = '< 55 mg/dL（且較基線降低 ≥ 50%）'
+    ldlTargetText = '< 55 mg/dL'
   }
   // 高風險
   else if (
@@ -68,7 +68,7 @@ export function calcEscEas(input: UserInput): GuidelineResult {
   ) {
     riskLevel = 'high'
     ldlTarget = 70
-    ldlTargetText = '< 70 mg/dL（且較基線降低 ≥ 50%）'
+    ldlTargetText = '< 70 mg/dL'
   } else {
     // 需要 SCORE2（2021 ESC 依年齡分層門檻，Low-to-Moderate Risk region）
     // < 50 歲：high ≥ 2.5%，very-high ≥ 7.5%
@@ -94,11 +94,11 @@ export function calcEscEas(input: UserInput): GuidelineResult {
       if (scoreRisk >= veryHighThreshold) {
         riskLevel = 'very-high'
         ldlTarget = 55
-        ldlTargetText = '< 55 mg/dL（且較基線降低 ≥ 50%）'
+        ldlTargetText = '< 55 mg/dL'
       } else if (scoreRisk >= highThreshold) {
         riskLevel = 'high'
         ldlTarget = 70
-        ldlTargetText = '< 70 mg/dL（且較基線降低 ≥ 50%）'
+        ldlTargetText = '< 70 mg/dL'
       } else if (scoreRisk >= 2.5) {
         riskLevel = 'moderate'
         ldlTarget = 100
@@ -122,7 +122,7 @@ export function calcEscEas(input: UserInput): GuidelineResult {
     ldlTargetText,
     currentLdl: ldl,
     achieved: ldl < ldlTarget,
-    notes: '⚠️ SCORE2 以歐洲族群建立，台灣用戶風險可能有所差異，僅供參考。依據 2025 ESC/EAS Focused Update。',
+    notes: '注意：此風險計算以歐洲族群為基準，台灣用戶數值僅供參考（依據 2025 ESC/EAS 最新指引）',
     tenYearRisk: scoreRisk,
   }
 }

@@ -26,7 +26,7 @@ export function ConsensusCard({ strictestTarget, achieved, summary, consistent, 
         color: 'white',
       }}>
         <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.75, marginBottom: '6px' }}>
-          三大指引統合結論
+          三大指引綜合建議
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
           <div style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1 }}>
@@ -37,7 +37,7 @@ export function ConsensusCard({ strictestTarget, achieved, summary, consistent, 
           )}
         </div>
         <div style={{ fontSize: '0.82rem', opacity: 0.8, marginTop: '4px' }}>
-          {strictestTarget !== null ? '最嚴格 LDL-C 建議目標' : '生活型態介入為主'}
+          {strictestTarget !== null ? '您的膽固醇目標（最嚴格標準）' : '以飲食運動調整為主'}
         </div>
       </div>
 
@@ -55,7 +55,7 @@ export function ConsensusCard({ strictestTarget, achieved, summary, consistent, 
                 <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1A1A1A', lineHeight: 1 }}>
                   {currentLdl}
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#9AA0A6', marginTop: '4px', fontWeight: 500 }}>目前 LDL-C</div>
+                <div style={{ fontSize: '0.7rem', color: '#9AA0A6', marginTop: '4px', fontWeight: 500 }}>您目前的膽固醇</div>
               </div>
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -69,7 +69,7 @@ export function ConsensusCard({ strictestTarget, achieved, summary, consistent, 
                   {'< '}{strictestTarget}
                 </div>
                 <div style={{ fontSize: '0.7rem', color: achieved ? '#1E7E34' : '#9B2020', marginTop: '4px', fontWeight: 500 }}>
-                  {achieved ? '✅ 已達標' : `❌ 差 ${gapAbs} mg/dL`}
+                  {achieved ? '✅ 已達標 🎉' : `❌ 還差 ${gapAbs} mg/dL`}
                 </div>
               </div>
             </div>
@@ -86,7 +86,7 @@ export function ConsensusCard({ strictestTarget, achieved, summary, consistent, 
                   position: 'absolute', left: `${targetPct}%`,
                   top: '12px', transform: 'translateX(-50%)',
                   fontSize: '0.62rem', color: '#006A7A', fontWeight: 600, whiteSpace: 'nowrap',
-                }}>目標 {strictestTarget}</div>
+                }}>目標 &lt;{strictestTarget}</div>
                 <div style={{
                   position: 'absolute', left: `${pct}%`,
                   top: '-5px', width: '18px', height: '18px',

@@ -41,7 +41,7 @@ export function ResultPage({ result, onBack }: Props) {
         {/* 三欄比較 */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6C757D', marginBottom: '12px' }}>
-            三大指引比較
+            三大指引怎麼說
           </div>
           <div className="guideline-cards">
             <GuidelineCard result={result.taiwan} />
@@ -53,7 +53,7 @@ export function ResultPage({ result, onBack }: Props) {
         {/* 建議 */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6C757D', marginBottom: '12px' }}>
-            個人化建議
+            給您的建議
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <RecommendationCard type="diet" items={result.recommendations.diet} />
@@ -62,10 +62,9 @@ export function ResultPage({ result, onBack }: Props) {
         </div>
 
         {/* 免責聲明 */}
-        <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
-          <div style={{ fontSize: '0.8rem', color: '#664d03', lineHeight: 1.6 }}>
-            ⚠️ <strong>免責聲明</strong><br />
-            本工具僅供衛教參考，不取代專業醫師診斷與建議。血脂異常請諮詢您的醫師，評估是否需要藥物治療。
+        <div style={{ backgroundColor: '#F8F9FA', border: '1px solid #DEE2E6', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
+          <div style={{ fontSize: '0.78rem', color: '#6C757D', lineHeight: 1.7 }}>
+            ℹ️ 本工具僅供衛教參考，不取代醫師診斷。若您有任何疑慮，請諮詢您的家庭醫師或心臟科醫師。
           </div>
         </div>
 
