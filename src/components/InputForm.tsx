@@ -5,7 +5,7 @@ interface Props {
   onSubmit: (input: UserInput) => void
 }
 
-type CKDLevel = 'none' | 'G3a' | 'G3b' | 'G4' | 'G5'
+type CKDLevel = 'none' | 'G1' | 'G2' | 'G3a' | 'G3b' | 'G4' | 'G5'
 
 export function InputForm({ onSubmit }: Props) {
   const [age, setAge] = useState('')
@@ -165,9 +165,17 @@ export function InputForm({ onSubmit }: Props) {
         <div>
           <label style={{ ...labelStyle, marginBottom: '10px' }}>慢性腎臟病（CKD）分期</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {(['none', 'G3a', 'G3b', 'G4', 'G5'] as CKDLevel[]).map(level => (
-              <ToggleBtn key={level} active={ckd === level} onClick={() => setCkd(level)}>
-                {level === 'none' ? '無' : level}
+            {[
+              { id: 'none', label: '無' },
+              { id: 'G1', label: '腎功能正常（G1）' },
+              { id: 'G2', label: '腎功能輕度下降（G2）' },
+              { id: 'G3a', label: '輕至中度下降（G3a）' },
+              { id: 'G3b', label: '中度下降（G3b）' },
+              { id: 'G4', label: '重度下降（G4）' },
+              { id: 'G5', label: '極重度下降/腎衰竭（G5）' }
+            ].map(({ id, label }) => (
+              <ToggleBtn key={id} active={ckd === id} onClick={() => setCkd(id as CKDLevel)}>
+                {label}
               </ToggleBtn>
             ))}
           </div>

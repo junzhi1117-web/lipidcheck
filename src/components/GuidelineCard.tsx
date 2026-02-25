@@ -12,7 +12,7 @@ const GUIDELINE_NAMES = {
 }
 
 const GUIDELINE_YEARS = {
-  taiwan: '2024',
+  taiwan: '2025',
   accaha: '2018/2025',
   esceas: '2025',
 }
