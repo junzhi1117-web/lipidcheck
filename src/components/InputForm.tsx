@@ -3,24 +3,25 @@ import type { UserInput } from '../types'
 
 interface Props {
   onSubmit: (input: UserInput) => void
+  initialInput?: Partial<UserInput>
 }
 
 type CKDLevel = 'none' | 'G1' | 'G2' | 'G3a' | 'G3b' | 'G4' | 'G5'
 
-export function InputForm({ onSubmit }: Props) {
-  const [age, setAge] = useState('')
-  const [sex, setSex] = useState<'male' | 'female' | ''>('')
-  const [sbp, setSbp] = useState('')
-  const [onBpMeds, setOnBpMeds] = useState(false)
-  const [smoker, setSmoker] = useState(false)
-  const [tc, setTc] = useState('')
-  const [ldl, setLdl] = useState('')
-  const [hdl, setHdl] = useState('')
-  const [tg, setTg] = useState('')
-  const [ascvd, setAscvd] = useState(false)
-  const [dm, setDm] = useState(false)
-  const [ckd, setCkd] = useState<CKDLevel>('none')
-  const [fh, setFh] = useState(false)
+export function InputForm({ onSubmit, initialInput }: Props) {
+  const [age, setAge] = useState(initialInput?.age?.toString() ?? '')
+  const [sex, setSex] = useState<'male' | 'female' | ''>(initialInput?.sex ?? '')
+  const [sbp, setSbp] = useState(initialInput?.sbp?.toString() ?? '')
+  const [onBpMeds, setOnBpMeds] = useState(initialInput?.onBpMeds ?? false)
+  const [smoker, setSmoker] = useState(initialInput?.smoker ?? false)
+  const [tc, setTc] = useState(initialInput?.tc?.toString() ?? '')
+  const [ldl, setLdl] = useState(initialInput?.ldl?.toString() ?? '')
+  const [hdl, setHdl] = useState(initialInput?.hdl?.toString() ?? '')
+  const [tg, setTg] = useState(initialInput?.tg?.toString() ?? '')
+  const [ascvd, setAscvd] = useState(initialInput?.ascvd ?? false)
+  const [dm, setDm] = useState(initialInput?.dm ?? false)
+  const [ckd, setCkd] = useState<CKDLevel>(initialInput?.ckd ?? 'none')
+  const [fh, setFh] = useState(initialInput?.fh ?? false)
 
   const nonHdl = tc && hdl ? (parseFloat(tc) - parseFloat(hdl)).toFixed(1) : '—'
 

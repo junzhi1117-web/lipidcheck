@@ -66,6 +66,70 @@ export function analyze(input: UserInput): AnalysisResult {
     }
   }
 
+  // Non-HDL cholesterol
+  const nonHdlValue = input.tc - input.hdl
+  const accahaLdlTarget = accaha.ldlTarget
+
+  // ESC/EAS non-HDL targets by risk level
+  const esceasNonHdlTargets: Record<RiskLevel, number> = {
+    'extreme': 85,
+    'very-high': 100,
+    'high': 130,
+    'moderate': 145,
+    'low': 145,
+  }
+
+  const nonHdl = {
+    value: nonHdlValue,
+    accahaTarget: accahaLdlTarget !== null ? accahaLdlTarget + 30 : null,
+    esceasTarget: esceasNonHdlTargets[esceas.riskLevel],
+    taiwanTarget: null as null,
+    accahaAchieved: accahaLdlTarget !== null ? nonHdlValue < (accahaLdlTarget + 30) : null,
+    esceasAchieved: nonHdlValue < esceasNonHdlTargets[esceas.riskLevel],
+  }
+
+  // LDL reduction needed
+  const calcReduction = (g: typeof taiwan) => {
+    if (g.ldlTarget === null) return null
+    if (input.ldl < g.ldlTarget) {
+      return { needed: 0, percent: 0, achieved: true }
+    }
+    const needed = input.ldl - g.ldlTarget
+    const percent = Math.round((needed / input.ldl) * 100)
+    return { needed, percent, achieved: false }
+  }
+
+  const accahaReduction = (() => {
+    if (accaha.ldlTarget !== null) {
+      return calcReduction(accaha)
+    }
+    // percentage-only mode (moderate/high without fixed target)
+    if (accaha.riskLevel === 'moderate' || accaha.riskLevel === 'high') {
+      const rangeMin = Math.round(input.ldl * 0.3)
+      const rangeMax = Math.round(input.ldl * 0.5)
+      return {
+        rangeMode: true as const,
+        rangeMin,
+        rangeMax,
+        rangePercentMin: 30,
+        rangePercentMax: 50,
+      }
+    }
+    return null
+  })()
+
+  const ldlReduction = {
+    taiwan: calcReduction(taiwan),
+    accaha: accahaReduction,
+    esceas: calcReduction(esceas),
+  }
+
+  // Ten-year risk
+  const tenYearRisk = {
+    pce: accaha.tenYearRisk ?? null,
+    score2: esceas.tenYearRisk ?? null,
+  }
+
   return {
     taiwan,
     accaha,
@@ -77,6 +141,9 @@ export function analyze(input: UserInput): AnalysisResult {
       consistent,
       crossGuidelineNote,
     },
+    nonHdl,
+    ldlReduction,
+    tenYearRisk,
     recommendations: {
       diet: getDietRecs(input, maxRisk),
       exercise: getExerciseRecs(maxRisk),

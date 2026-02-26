@@ -38,10 +38,35 @@ export interface AnalysisResult {
     consistent: boolean
     crossGuidelineNote?: string
   }
+  nonHdl: {
+    value: number
+    accahaTarget: number | null
+    esceasTarget: number | null
+    taiwanTarget: null
+    accahaAchieved: boolean | null
+    esceasAchieved: boolean | null
+  }
+  ldlReduction: {
+    taiwan: { needed: number; percent: number; achieved: boolean } | null
+    accaha: { needed: number; percent: number; achieved: boolean } | { rangeMode: true; rangeMin: number; rangeMax: number; rangePercentMin: number; rangePercentMax: number } | null
+    esceas: { needed: number; percent: number; achieved: boolean } | null
+  }
+  tenYearRisk: {
+    pce: number | null
+    score2: number | null
+  }
   recommendations: {
     diet: string[]
     exercise: string[]
   }
+}
+
+export interface HistoryEntry {
+  id: string
+  date: string
+  ldl: number
+  target: number | null
+  achieved: boolean | null
 }
 
 export const RISK_LABELS: Record<RiskLevel, string> = {
