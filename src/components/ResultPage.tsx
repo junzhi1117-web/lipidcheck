@@ -69,7 +69,7 @@ export function ResultPage({ result, onBack }: Props) {
         </div>
 
         {/* 重新評估按鈕 */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
           <button
             onClick={onBack}
             style={{
@@ -87,6 +87,42 @@ export function ResultPage({ result, onBack }: Props) {
           >
             ← 重新輸入資料
           </button>
+        </div>
+
+        {/* Buy Me a Coffee */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+          <p style={{ fontSize: '0.78rem', color: '#9AA0A6', margin: 0 }}>
+            這個工具對你有幫助嗎？
+          </p>
+          <a
+            href="https://buymeacoffee.com/junzhi"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '11px 22px',
+              borderRadius: '12px',
+              backgroundColor: '#FFDD00',
+              color: '#1A1A1A',
+              fontSize: '0.9rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)'
+              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 14px rgba(0,0,0,0.15)'
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
+              ;(e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)'
+            }}
+          >
+            ☕ 請我喝杯咖啡
+          </a>
         </div>
       </div>
     </div>
