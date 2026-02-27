@@ -23,7 +23,11 @@ export default defineConfig({
           { src: 'favicon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'] },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['**/og-image.png'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+      },
     }),
   ],
 })
