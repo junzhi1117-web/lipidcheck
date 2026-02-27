@@ -1,46 +1,27 @@
 <svg width="512" height="512" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <!-- Teal shield with inner gradient depth -->
   <defs>
-    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#1A8A9C"/>
-      <stop offset="100%" stop-color="#005566"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#227080"/>
+      <stop offset="100%" stop-color="#0F4855"/>
     </linearGradient>
   </defs>
 
-  <!-- Shield shape -->
-  <path
-    d="M 50 91
-       C 25 77 11 58 11 40
-       L 11 20
-       Q 11 9 21 9
-       L 79 9
-       Q 89 9 89 20
-       L 89 40
-       C 89 58 75 77 50 91 Z"
-    fill="url(#shieldGrad)"
-  />
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="50" fill="url(#bg)"/>
 
-  <!-- Subtle inner glow on top edge -->
-  <path
-    d="M 50 84
-       C 29 71 17 55 17 39
-       L 17 23
-       Q 17 16 24 16
-       L 76 16
-       Q 83 16 83 23
-       L 83 39
-       C 83 55 71 71 50 84 Z"
-    fill="white"
-    opacity="0.07"
-  />
+  <!-- Subtle inner highlight -->
+  <circle cx="50" cy="35" r="28" fill="white" opacity="0.04"/>
 
-  <!-- Bold white checkmark, centered in lower shield -->
+  <!-- ECG waveform: baseline → P wave → QRS complex → T wave → baseline -->
   <polyline
-    points="27,52 43,69 72,34"
+    points="6,50 22,50 25,44 28,50 33,50 36,63 41,15 46,59 50,50 55,50 58,37 64,50 94,50"
     stroke="white"
-    stroke-width="10"
+    stroke-width="5.2"
     fill="none"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
+
+  <!-- Gold accent dot at R-wave peak (highest point = most important signal) -->
+  <circle cx="41" cy="15" r="3.5" fill="#C8943A"/>
 </svg>
