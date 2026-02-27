@@ -121,7 +121,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA]">
+    <div className="min-h-screen bg-[#F6F9FC]">
       <WaveHeader />
       <InputForm onSubmit={handleSubmit} initialInput={initialInput ?? undefined} />
     </div>

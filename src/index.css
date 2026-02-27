@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #006A7A;
-  --color-primary-light: #008A9A;
-  --color-secondary: #E6F0F1;
-  --color-accent: #FF6F61;
-  --color-bg: #F8F9FA;
+  --color-primary: #0052CC;
+  --color-primary-light: #2970FF;
+  --color-secondary: #EFF4FF;
+  --color-accent: #0052CC;
+  --color-bg: #F6F9FC;
   --color-card: #FFFFFF;
-  --color-text: #212529;
-  --color-muted: #6C757D;
-  --color-border: #DEE2E6;
+  --color-text: #0A2540;
+  --color-muted: #64748B;
+  --color-border: #E2E8F0;
 
-  --color-risk-low: #28A745;
-  --color-risk-moderate: #FFC107;
-  --color-risk-high: #FD7E14;
-  --color-risk-very-high: #DC3545;
-  --color-risk-extreme: #B22222;
+  --color-risk-low: #10B981;
+  --color-risk-moderate: #F59E0B;
+  --color-risk-high: #EF4444;
+  --color-risk-very-high: #B91C1C;
+  --color-risk-extreme: #7F1D1D;
 
-  --font-sans: 'Noto Sans TC', 'Lexend', sans-serif;
-  --font-display: 'Lexend', 'Noto Sans TC', sans-serif;
+  --font-sans: 'Noto Sans TC', 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -97,7 +97,7 @@ body {
 .form-outer-wrap {
   max-width: 520px;
   margin: 0 auto;
-  padding: 24px 20px 100px;
+  padding: 24px 20px 32px;
 }
 
 .form-layout {

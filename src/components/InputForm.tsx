@@ -8,6 +8,20 @@ interface Props {
 
 type CKDLevel = 'none' | 'G1' | 'G2' | 'G3a' | 'G3b' | 'G4' | 'G5'
 
+function getLipidColor(field: 'tc' | 'ldl' | 'hdl' | 'tg', value: string, sex: 'male' | 'female' | ''): string | undefined {
+  const num = parseFloat(value)
+  if (!value || isNaN(num) || num <= 0) return undefined
+
+  switch (field) {
+    case 'tc': return num >= 200 ? '#EF4444' : '#10B981'
+    case 'ldl': return num >= 100 ? '#EF4444' : '#10B981'
+    case 'hdl':
+      if (!sex) return undefined
+      return (sex === 'male' && num <= 40) || (sex === 'female' && num <= 50) ? '#EF4444' : '#10B981'
+    case 'tg': return num >= 150 ? '#EF4444' : '#10B981'
+  }
+}
+
 export function InputForm({ onSubmit, initialInput }: Props) {
   const [age, setAge] = useState(initialInput?.age?.toString() ?? '')
   const [sex, setSex] = useState<'male' | 'female' | ''>(initialInput?.sex ?? '')
@@ -49,7 +63,7 @@ export function InputForm({ onSubmit, initialInput }: Props) {
 
   const labelStyle: React.CSSProperties = {
     fontSize: '0.8rem',
-    color: '#6C757D',
+    color: '#64748B',
     fontWeight: 500,
     marginBottom: '4px',
     display: 'block',
@@ -62,9 +76,9 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       style={{
         padding: '7px 16px',
         borderRadius: '9999px',
-        border: `1.5px solid ${active ? '#006A7A' : '#DEE2E6'}`,
-        background: active ? '#006A7A' : 'white',
-        color: active ? 'white' : '#6C757D',
+        border: `1.5px solid ${active ? '#0052CC' : '#E2E8F0'}`,
+        background: active ? '#0052CC' : 'white',
+        color: active ? 'white' : '#64748B',
         cursor: 'pointer',
         fontSize: '0.875rem',
         fontWeight: 500,
@@ -76,20 +90,26 @@ export function InputForm({ onSubmit, initialInput }: Props) {
   )
 
   const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-    <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6C757D', marginBottom: '16px', marginTop: '4px' }}>
+    <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#64748B', marginBottom: '16px', marginTop: '4px' }}>
       {children}
     </div>
   )
 
+  const lipidFields: { label: string; field: 'tc' | 'ldl' | 'hdl' | 'tg'; value: string; setter: (v: string) => void; placeholder: string }[] = [
+    { label: '總膽固醇 (TC)', field: 'tc', value: tc, setter: setTc, placeholder: '200' },
+    { label: 'LDL-C（壞膽固醇）', field: 'ldl', value: ldl, setter: setLdl, placeholder: '130' },
+    { label: 'HDL-C（好膽固醇）', field: 'hdl', value: hdl, setter: setHdl, placeholder: '55' },
+    { label: '三酸甘油酯 (TG)', field: 'tg', value: tg, setter: setTg, placeholder: '150' },
+  ]
+
   return (
     <div className="form-outer-wrap">
-      {/* 桌面兩欄 / 手機單欄 */}
       <div className="form-layout">
 
       {/* 左欄：基本資料 + 血脂數值 */}
       <div className="form-left-col">
 
-      {/* 基本資料 */}
+      {/* 基本資料 — 2x2 grid */}
       <div className="card" style={{ marginBottom: '16px' }}>
         <SectionTitle>基本資料</SectionTitle>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
@@ -120,35 +140,46 @@ export function InputForm({ onSubmit, initialInput }: Props) {
         </div>
       </div>
 
-      {/* 血脂數值 */}
+      {/* 血脂數值 — 含即時顏色提示 */}
       <div className="card" style={{ marginBottom: '16px' }}>
         <SectionTitle>血脂數值（mg/dL）</SectionTitle>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {[
-            { label: '總膽固醇 (TC)', value: tc, setter: setTc, placeholder: '200' },
-            { label: 'LDL-C（壞膽固醇）', value: ldl, setter: setLdl, placeholder: '130' },
-            { label: 'HDL-C（好膽固醇）', value: hdl, setter: setHdl, placeholder: '55' },
-            { label: '三酸甘油酯 (TG)', value: tg, setter: setTg, placeholder: '150' },
-          ].map(({ label, value, setter, placeholder }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
-              <div style={{ flex: 1, fontSize: '0.9rem', color: '#212529', fontWeight: 500 }}>{label}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <input
-                  type="number"
-                  value={value}
-                  onChange={e => setter(e.target.value)}
-                  placeholder={placeholder}
-                  style={{ width: '80px', border: 'none', borderBottom: '2px solid #DEE2E6', padding: '6px 4px', textAlign: 'right', fontSize: '1rem', fontWeight: 600, color: '#006A7A', background: 'transparent', outline: 'none' }}
-                />
-                <span style={{ fontSize: '0.75rem', color: '#6C757D', width: '40px' }}>mg/dL</span>
+          {lipidFields.map(({ label, field, value, setter, placeholder }) => {
+            const hintColor = getLipidColor(field, value, sex)
+            return (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F0F0F0' }}>
+                <div style={{ flex: 1, fontSize: '0.9rem', color: '#0A2540', fontWeight: 500 }}>{label}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <input
+                    type="number"
+                    value={value}
+                    onChange={e => setter(e.target.value)}
+                    placeholder={placeholder}
+                    style={{
+                      width: '80px',
+                      border: 'none',
+                      borderBottom: `2px solid ${hintColor ?? '#E2E8F0'}`,
+                      padding: '6px 4px',
+                      textAlign: 'right',
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      color: hintColor ?? '#0052CC',
+                      background: 'transparent',
+                      outline: 'none',
+                      transition: 'border-color 0.2s, color 0.2s',
+                    }}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>mg/dL</span>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
+          {/* Non-HDL 即時計算 */}
           <div style={{ display: 'flex', alignItems: 'center', padding: '8px 0' }}>
-            <div style={{ flex: 1, fontSize: '0.9rem', color: '#6C757D' }}>Non-HDL（自動計算）</div>
+            <div style={{ flex: 1, fontSize: '0.9rem', color: '#64748B' }}>Non-HDL（自動計算）</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '80px', textAlign: 'right', fontSize: '1rem', fontWeight: 600, color: '#6C757D', padding: '6px 4px' }}>{nonHdl}</span>
-              <span style={{ fontSize: '0.75rem', color: '#6C757D', width: '40px' }}>mg/dL</span>
+              <span style={{ width: '80px', textAlign: 'right', fontSize: '1rem', fontWeight: 600, color: '#64748B', padding: '6px 4px' }}>{nonHdl}</span>
+              <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>mg/dL</span>
             </div>
           </div>
         </div>
@@ -159,7 +190,6 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       {/* 右欄：共病症 */}
       <div className="form-right-col">
 
-      {/* 共病症 */}
       <div className="card" style={{ marginBottom: '16px' }}>
         <SectionTitle>共病症 / 風險因子</SectionTitle>
 
@@ -173,23 +203,34 @@ export function InputForm({ onSubmit, initialInput }: Props) {
           </div>
         </div>
 
+        {/* CKD — select dropdown */}
         <div>
           <label style={{ ...labelStyle, marginBottom: '10px' }}>慢性腎臟病（CKD）分期</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {[
-              { id: 'none', label: '無' },
-              { id: 'G1', label: '腎功能正常（G1）' },
-              { id: 'G2', label: '腎功能輕度下降（G2）' },
-              { id: 'G3a', label: '輕至中度下降（G3a）' },
-              { id: 'G3b', label: '中度下降（G3b）' },
-              { id: 'G4', label: '重度下降（G4）' },
-              { id: 'G5', label: '極重度下降/腎衰竭（G5）' }
-            ].map(({ id, label }) => (
-              <ToggleBtn key={id} active={ckd === id} onClick={() => setCkd(id as CKDLevel)}>
-                {label}
-              </ToggleBtn>
-            ))}
-          </div>
+          <select
+            value={ckd}
+            onChange={e => setCkd(e.target.value as CKDLevel)}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '10px',
+              border: '1.5px solid #E2E8F0',
+              backgroundColor: 'white',
+              color: '#0A2540',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              outline: 'none',
+              appearance: 'auto',
+            }}
+          >
+            <option value="none">無</option>
+            <option value="G1">腎功能正常（G1）</option>
+            <option value="G2">腎功能輕度下降（G2）</option>
+            <option value="G3a">輕至中度下降（G3a）</option>
+            <option value="G3b">中度下降（G3b）</option>
+            <option value="G4">重度下降（G4）</option>
+            <option value="G5">極重度下降/腎衰竭（G5）</option>
+          </select>
         </div>
       </div>
 
@@ -203,10 +244,10 @@ export function InputForm({ onSubmit, initialInput }: Props) {
             padding: '16px',
             borderRadius: '14px',
             border: 'none',
-            backgroundColor: isValid ? '#FF6F61' : '#DEE2E6',
-            color: isValid ? 'white' : '#9AA0A6',
+            backgroundColor: isValid ? '#0052CC' : '#E2E8F0',
+            color: isValid ? 'white' : '#94A3B8',
             fontSize: '1rem',
-            fontWeight: 700,
+            fontWeight: 600,
             cursor: isValid ? 'pointer' : 'not-allowed',
             transition: 'all 0.2s',
             letterSpacing: '0.02em',
@@ -219,29 +260,27 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       </div>{/* end form-right-col */}
       </div>{/* end form-layout */}
 
-      {/* Mobile sticky CTA */}
-      <div className="mobile-only" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px', backgroundColor: 'rgba(248,249,250,0.95)', backdropFilter: 'blur(8px)', borderTop: '1px solid #DEE2E6', zIndex: 10 }}>
-        <div style={{ maxWidth: '520px', margin: '0 auto' }}>
-          <button
-            onClick={handleSubmit}
-            disabled={!isValid}
-            style={{
-              width: '100%',
-              padding: '16px',
-              borderRadius: '14px',
-              border: 'none',
-              backgroundColor: isValid ? '#FF6F61' : '#DEE2E6',
-              color: isValid ? 'white' : '#9AA0A6',
-              fontSize: '1rem',
-              fontWeight: 700,
-              cursor: isValid ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s',
-              letterSpacing: '0.02em',
-            }}
-          >
-            查看分析結果 →
-          </button>
-        </div>
+      {/* Mobile inline CTA — placed after all content, no fixed overlay */}
+      <div className="mobile-only" style={{ marginTop: '16px', paddingBottom: '24px' }}>
+        <button
+          onClick={handleSubmit}
+          disabled={!isValid}
+          style={{
+            width: '100%',
+            padding: '16px',
+            borderRadius: '14px',
+            border: 'none',
+            backgroundColor: isValid ? '#0052CC' : '#E2E8F0',
+            color: isValid ? 'white' : '#94A3B8',
+            fontSize: '1rem',
+            fontWeight: 600,
+            cursor: isValid ? 'pointer' : 'not-allowed',
+            transition: 'all 0.2s',
+            letterSpacing: '0.02em',
+          }}
+        >
+          查看分析結果 →
+        </button>
       </div>
     </div>
   )

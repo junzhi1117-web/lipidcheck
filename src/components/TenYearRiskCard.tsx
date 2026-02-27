@@ -10,7 +10,7 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
     <div style={{
       backgroundColor: '#FFFFFF',
       borderRadius: '12px',
-      border: '1px solid #DEE2E6',
+      border: '1px solid #E2E8F0',
       overflow: 'hidden',
       boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
     }}>
@@ -18,7 +18,7 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
         padding: '14px 16px 12px',
         borderBottom: '1px solid #F0F0F0',
       }}>
-        <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6C757D' }}>
+        <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#64748B' }}>
           10 年心血管風險預測
         </div>
       </div>
@@ -34,7 +34,7 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
               <span style={{ fontSize: '2rem', fontWeight: 800, color: '#1A1A1A', lineHeight: 1 }}>
                 {pce}
               </span>
-              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#6C757D' }}>%</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#64748B' }}>%</span>
             </div>
           ) : (
             <div style={{ fontSize: '0.85rem', color: '#9AA0A6', fontWeight: 500 }}>
@@ -53,7 +53,7 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
               <span style={{ fontSize: '2rem', fontWeight: 800, color: '#1A1A1A', lineHeight: 1 }}>
                 {score2}
               </span>
-              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#6C757D' }}>%</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#64748B' }}>%</span>
             </div>
           ) : (
             <div style={{ fontSize: '0.85rem', color: '#9AA0A6', fontWeight: 500 }}>

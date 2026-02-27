@@ -78,9 +78,9 @@ export const RISK_LABELS: Record<RiskLevel, string> = {
 }
 
 export const RISK_COLORS: Record<RiskLevel, string> = {
-  'low': '#28A745',
-  'moderate': '#FFC107',
-  'high': '#FD7E14',
-  'very-high': '#DC3545',
-  'extreme': '#B22222',
+  'low': '#10B981',
+  'moderate': '#F59E0B',
+  'high': '#EF4444',
+  'very-high': '#B91C1C',
+  'extreme': '#7F1D1D',
 }

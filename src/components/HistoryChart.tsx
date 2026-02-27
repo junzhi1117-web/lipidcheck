@@ -87,7 +87,7 @@ export function HistoryChart({ currentEntry }: Props) {
     <div style={{
       backgroundColor: '#FFFFFF',
       borderRadius: '10px',
-      border: '1px solid #DEE2E6',
+      border: '1px solid #E2E8F0',
       overflow: 'hidden',
     }}>
       <button
@@ -103,7 +103,7 @@ export function HistoryChart({ currentEntry }: Props) {
           justifyContent: 'space-between',
           fontSize: '0.88rem',
           fontWeight: 600,
-          color: '#006A7A',
+          color: '#0052CC',
         }}
       >
         <span>📊 查看歷史記錄（{history.length} 筆）</span>
@@ -137,11 +137,11 @@ export function HistoryChart({ currentEntry }: Props) {
                   y1={toY(consistentTarget)}
                   x2={padLeft + chartW}
                   y2={toY(consistentTarget)}
-                  stroke="#DC3545"
+                  stroke="#EF4444"
                   strokeWidth="1.5"
                   strokeDasharray="6,4"
                 />
-                <text x={padLeft + chartW + 4} y={toY(consistentTarget) + 3} fontSize="9" fill="#DC3545">
+                <text x={padLeft + chartW + 4} y={toY(consistentTarget) + 3} fontSize="9" fill="#EF4444">
                   目標 {consistentTarget}
                 </text>
               </g>
@@ -149,7 +149,7 @@ export function HistoryChart({ currentEntry }: Props) {
 
             {/* Line path */}
             {linePath && (
-              <path d={linePath} fill="none" stroke="#006A7A" strokeWidth="2" strokeLinejoin="round" />
+              <path d={linePath} fill="none" stroke="#0052CC" strokeWidth="2" strokeLinejoin="round" />
             )}
 
             {/* Dots + X axis labels */}
@@ -159,7 +159,7 @@ export function HistoryChart({ currentEntry }: Props) {
                   cx={toX(i)}
                   cy={toY(h.ldl)}
                   r="5"
-                  fill={h.achieved === true ? '#28A745' : h.achieved === false ? '#DC3545' : '#6C757D'}
+                  fill={h.achieved === true ? '#10B981' : h.achieved === false ? '#EF4444' : '#64748B'}
                   stroke="white"
                   strokeWidth="2"
                 >
@@ -185,11 +185,11 @@ export function HistoryChart({ currentEntry }: Props) {
           <div style={{ marginTop: '12px', fontSize: '0.78rem' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #DEE2E6' }}>
-                  <th style={{ textAlign: 'left', padding: '6px 4px', color: '#6C757D', fontWeight: 600 }}>日期</th>
-                  <th style={{ textAlign: 'right', padding: '6px 4px', color: '#6C757D', fontWeight: 600 }}>LDL</th>
-                  <th style={{ textAlign: 'right', padding: '6px 4px', color: '#6C757D', fontWeight: 600 }}>目標</th>
-                  <th style={{ textAlign: 'center', padding: '6px 4px', color: '#6C757D', fontWeight: 600 }}>狀態</th>
+                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <th style={{ textAlign: 'left', padding: '6px 4px', color: '#64748B', fontWeight: 600 }}>日期</th>
+                  <th style={{ textAlign: 'right', padding: '6px 4px', color: '#64748B', fontWeight: 600 }}>LDL</th>
+                  <th style={{ textAlign: 'right', padding: '6px 4px', color: '#64748B', fontWeight: 600 }}>目標</th>
+                  <th style={{ textAlign: 'center', padding: '6px 4px', color: '#64748B', fontWeight: 600 }}>狀態</th>
                 </tr>
               </thead>
               <tbody>
