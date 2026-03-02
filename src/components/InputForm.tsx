@@ -39,14 +39,29 @@ export function InputForm({ onSubmit, initialInput }: Props) {
 
   const nonHdl = tc && hdl ? (parseFloat(tc) - parseFloat(hdl)).toFixed(1) : '—'
 
+  // Friedewald LDL estimation (valid only when TG < 400 mg/dL)
+  const tcNum = parseFloat(tc)
+  const hdlNum = parseFloat(hdl)
+  const tgNum = parseFloat(tg)
+  const friedewaldLdl =
+    tc && hdl && tg && !isNaN(tcNum) && !isNaN(hdlNum) && !isNaN(tgNum) && tgNum > 0 && tgNum < 400
+      ? Math.round((tcNum - hdlNum - tgNum / 5) * 10) / 10
+      : null
+  const tgTooHigh = tg && tgNum >= 400
+
+  // LDL source: use measured if provided, else Friedewald
+  const effectiveLdl = ldl ? parseFloat(ldl) : friedewaldLdl
+  const ldlSource: 'measured' | 'friedewald' = ldl ? 'measured' : 'friedewald'
+
   const isValid =
-    age && sex && sbp && tc && ldl && hdl && tg &&
+    age && sex && sbp && tc && hdl && tg &&
     parseInt(age) >= 18 && parseInt(age) <= 90 &&
-    parseFloat(tc) > 0 && parseFloat(ldl) > 0 &&
-    parseFloat(hdl) > 0 && parseFloat(tg) > 0
+    parseFloat(tc) > 0 &&
+    parseFloat(hdl) > 0 && parseFloat(tg) > 0 &&
+    effectiveLdl !== null && effectiveLdl > 0
 
   const handleSubmit = () => {
-    if (!isValid) return
+    if (!isValid || effectiveLdl === null) return
     onSubmit({
       age: parseInt(age),
       sex: sex as 'male' | 'female',
@@ -54,10 +69,11 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       onBpMeds,
       smoker,
       tc: parseFloat(tc),
-      ldl: parseFloat(ldl),
+      ldl: effectiveLdl,
       hdl: parseFloat(hdl),
       tg: parseFloat(tg),
       ascvd, dm, ckd, fh,
+      ldlSource,
     })
   }
 
@@ -95,9 +111,9 @@ export function InputForm({ onSubmit, initialInput }: Props) {
     </div>
   )
 
-  const lipidFields: { label: string; field: 'tc' | 'ldl' | 'hdl' | 'tg'; value: string; setter: (v: string) => void; placeholder: string }[] = [
+  const lipidFields: { label: string; field: 'tc' | 'ldl' | 'hdl' | 'tg'; value: string; setter: (v: string) => void; placeholder: string; optional?: boolean }[] = [
     { label: '總膽固醇 (TC)', field: 'tc', value: tc, setter: setTc, placeholder: '200' },
-    { label: 'LDL-C（壞膽固醇）', field: 'ldl', value: ldl, setter: setLdl, placeholder: '130' },
+    { label: 'LDL-C（壞膽固醇）', field: 'ldl', value: ldl, setter: setLdl, placeholder: '選填', optional: true },
     { label: 'HDL-C（好膽固醇）', field: 'hdl', value: hdl, setter: setHdl, placeholder: '55' },
     { label: '三酸甘油酯 (TG)', field: 'tg', value: tg, setter: setTg, placeholder: '150' },
   ]
@@ -144,33 +160,59 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       <div className="card" style={{ marginBottom: '16px' }}>
         <SectionTitle>血脂數值（mg/dL）</SectionTitle>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {lipidFields.map(({ label, field, value, setter, placeholder }) => {
-            const hintColor = getLipidColor(field, value, sex)
+          {lipidFields.map(({ label, field, value, setter, placeholder, optional }) => {
+            const hintColor = field === 'ldl' && !value && friedewaldLdl !== null
+              ? '#F59E0B'
+              : getLipidColor(field, value, sex)
+            const isLdlEstimated = field === 'ldl' && !value && friedewaldLdl !== null
             return (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F0F0F0' }}>
-                <div style={{ flex: 1, fontSize: '0.9rem', color: '#0A2540', fontWeight: 500 }}>{label}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <input
-                    type="number"
-                    value={value}
-                    onChange={e => setter(e.target.value)}
-                    placeholder={placeholder}
-                    style={{
-                      width: '80px',
-                      border: 'none',
-                      borderBottom: `2px solid ${hintColor ?? '#E2E8F0'}`,
-                      padding: '6px 4px',
-                      textAlign: 'right',
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      color: hintColor ?? '#0052CC',
-                      background: 'transparent',
-                      outline: 'none',
-                      transition: 'border-color 0.2s, color 0.2s',
-                    }}
-                  />
-                  <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>mg/dL</span>
+              <div key={label}>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: isLdlEstimated ? 'none' : '1px solid #F0F0F0' }}>
+                  <div style={{ flex: 1, fontSize: '0.9rem', color: '#0A2540', fontWeight: 500 }}>
+                    {label}
+                    {optional && (
+                      <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 400, marginLeft: '4px' }}>(選填)</span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input
+                      type="number"
+                      value={value}
+                      onChange={e => setter(e.target.value)}
+                      placeholder={isLdlEstimated ? String(friedewaldLdl) : placeholder}
+                      style={{
+                        width: '80px',
+                        border: 'none',
+                        borderBottom: `2px solid ${hintColor ?? '#E2E8F0'}`,
+                        padding: '6px 4px',
+                        textAlign: 'right',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        color: hintColor ?? '#0052CC',
+                        background: 'transparent',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, color 0.2s',
+                      }}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>mg/dL</span>
+                  </div>
                 </div>
+                {/* Friedewald 估算提示行 */}
+                {field === 'ldl' && !value && (
+                  <div style={{
+                    padding: '4px 0 8px 0',
+                    borderBottom: '1px solid #F0F0F0',
+                    fontSize: '0.72rem',
+                  }}>
+                    {tgTooHigh ? (
+                      <span style={{ color: '#EF4444' }}>⚠️ TG ≥ 400 mg/dL，Friedewald 公式不適用，請輸入實測 LDL</span>
+                    ) : friedewaldLdl !== null ? (
+                      <span style={{ color: '#B45309' }}>🔶 由 Friedewald 公式估算：TC − HDL − TG/5 = <strong>{friedewaldLdl} mg/dL</strong></span>
+                    ) : (
+                      <span style={{ color: '#94A3B8' }}>輸入 TC、HDL、TG 後可自動估算 LDL</span>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}

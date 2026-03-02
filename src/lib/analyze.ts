@@ -134,6 +134,7 @@ export function analyze(input: UserInput): AnalysisResult {
     taiwan,
     accaha,
     esceas,
+    ldlSource: input.ldlSource,
     consensus: {
       strictestTarget,
       achieved: strictestTarget !== null ? input.ldl < strictestTarget : null,

@@ -36,6 +36,25 @@ export function ResultPage({ result, onBack, historyEntry }: Props) {
 
       <div className="result-outer-wrap" style={{ margin: '0 auto', padding: '20px 20px 40px' }}>
 
+        {/* Friedewald 估算提示 */}
+        {result.ldlSource === 'friedewald' && (
+          <div style={{
+            backgroundColor: '#FFFBEB',
+            border: '1px solid #F59E0B',
+            borderRadius: '10px',
+            padding: '10px 14px',
+            marginBottom: '16px',
+            fontSize: '0.82rem',
+            color: '#92400E',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '8px',
+          }}>
+            <span style={{ fontSize: '1rem' }}>🔶</span>
+            <span>本次 LDL-C 由 <strong>Friedewald 公式</strong>（TC − HDL − TG/5）估算，並非直接實測值。建議定期抽血確認實際數值。</span>
+          </div>
+        )}
+
         {/* 統合結論 */}
         <div style={{ marginBottom: '20px' }}>
           <ConsensusCard

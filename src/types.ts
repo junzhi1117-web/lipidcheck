@@ -12,6 +12,7 @@ export interface UserInput {
   dm: boolean
   ckd: 'none' | 'G1' | 'G2' | 'G3a' | 'G3b' | 'G4' | 'G5'
   fh: boolean
+  ldlSource?: 'measured' | 'friedewald'
 }
 
 export type RiskLevel = 'low' | 'moderate' | 'high' | 'very-high' | 'extreme'
@@ -31,6 +32,7 @@ export interface AnalysisResult {
   taiwan: GuidelineResult
   accaha: GuidelineResult
   esceas: GuidelineResult
+  ldlSource?: 'measured' | 'friedewald'
   consensus: {
     strictestTarget: number | null
     achieved: boolean | null
