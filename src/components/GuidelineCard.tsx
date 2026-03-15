@@ -70,10 +70,10 @@ export function GuidelineCard({ result }: Props) {
           <RiskBadge level={riskLevel} size="sm" />
         </div>
 
-        {/* LDL target */}
+        {/* LDL target / treatment direction */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
-            建議目標值
+            {guideline === 'accaha' && ldlTarget === null ? '治療方向' : '建議目標值'}
           </div>
           <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0A2540', lineHeight: 1.4 }}>
             {ldlTargetText}

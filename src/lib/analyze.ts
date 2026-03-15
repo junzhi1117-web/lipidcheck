@@ -103,16 +103,15 @@ export function analyze(input: UserInput): AnalysisResult {
     if (accaha.ldlTarget !== null) {
       return calcReduction(accaha)
     }
-    // percentage-only mode (moderate/high without fixed target)
-    if (accaha.riskLevel === 'moderate' || accaha.riskLevel === 'high') {
-      const rangeMin = Math.round(input.ldl * 0.3)
-      const rangeMax = Math.round(input.ldl * 0.5)
+    if (accaha.ldlReductionPercentMin !== undefined && accaha.ldlReductionPercentMax !== undefined) {
+      const minRatio = accaha.ldlReductionPercentMin / 100
+      const maxRatio = accaha.ldlReductionPercentMax / 100
       return {
         rangeMode: true as const,
-        rangeMin,
-        rangeMax,
-        rangePercentMin: 30,
-        rangePercentMax: 50,
+        rangeMin: Math.round(input.ldl * minRatio),
+        rangeMax: Math.round(input.ldl * maxRatio),
+        rangePercentMin: accaha.ldlReductionPercentMin,
+        rangePercentMax: accaha.ldlReductionPercentMax,
       }
     }
     return null

@@ -26,6 +26,9 @@ export interface GuidelineResult {
   achieved: boolean | null
   notes?: string
   tenYearRisk?: number
+  pathway?: string
+  ldlReductionPercentMin?: number
+  ldlReductionPercentMax?: number
 }
 
 export interface AnalysisResult {
