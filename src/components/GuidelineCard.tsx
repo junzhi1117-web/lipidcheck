@@ -142,7 +142,7 @@ export function GuidelineCard({ result }: Props) {
         {/* 10-year risk */}
         {tenYearRisk !== undefined && (
           <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#64748B' }}>
-            10 年心血管風險：<strong>{tenYearRisk}%</strong>
+            未來 10 年心血管風險（參考值）：<strong>{tenYearRisk}%</strong>
           </div>
         )}
 

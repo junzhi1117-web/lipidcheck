@@ -51,7 +51,7 @@ export function ResultPage({ result, onBack, historyEntry }: Props) {
             gap: '8px',
           }}>
             <span style={{ fontSize: '1rem' }}>🔶</span>
-            <span>本次 LDL-C 由 <strong>Friedewald 公式</strong>（TC − HDL − TG/5）估算，並非直接實測值。建議定期抽血確認實際數值。</span>
+            <span>這次的 LDL 是用 <strong>Friedewald 公式</strong>（TC − HDL − TG/5）推算的，不是直接抽血測到的數值。之後若方便，仍建議用正式抽血結果再確認一次。</span>
           </div>
         )}
 

@@ -37,7 +37,7 @@ export function ConsensusCard({ strictestTarget, achieved, summary, consistent, 
           )}
         </div>
         <div style={{ fontSize: '0.82rem', opacity: 0.8, marginTop: '4px' }}>
-          {strictestTarget !== null ? '您的膽固醇目標（最嚴格標準）' : '以飲食運動調整為主'}
+          {strictestTarget !== null ? '如果用較嚴格的標準來看，這是您目前可參考的目標' : '先從飲食和運動調整開始'}
         </div>
       </div>
 
