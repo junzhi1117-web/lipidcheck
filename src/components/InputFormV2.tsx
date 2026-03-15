@@ -40,10 +40,48 @@ const subtleTextStyle: CSSProperties = {
   color: '#94A3B8',
 }
 
+const errorTextStyle: CSSProperties = {
+  fontSize: '0.72rem',
+  color: '#DC2626',
+  marginTop: '6px',
+}
+
+const warningTextStyle: CSSProperties = {
+  fontSize: '0.72rem',
+  color: '#B45309',
+  marginTop: '6px',
+}
+
+const infoTextStyle: CSSProperties = {
+  fontSize: '0.72rem',
+  color: '#64748B',
+  marginTop: '6px',
+}
+
 const twoColumnGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
   gap: '20px',
+}
+
+const yesNoOptions = [
+  { label: '是', value: 'yes' },
+  { label: '否', value: 'no' },
+] as const
+
+const familyHistoryOptions = [
+  { label: '有', value: 'yes' },
+  { label: '無', value: 'no' },
+] as const
+
+const requiredFieldLabels: Partial<Record<keyof InputFormValues, string>> = {
+  age: '年齡',
+  sex: '性別',
+  sbp: '收縮壓',
+  tc: '總膽固醇',
+  ldl: 'LDL',
+  hdl: 'HDL-C',
+  tg: 'TG',
 }
 
 function SectionTitle({ children }: { children: ReactNode }) {
@@ -76,7 +114,7 @@ function ToggleGroup<T extends string>({
   paddingTop = '0px',
 }: {
   value: T
-  options: FieldOption<T>[]
+  options: ReadonlyArray<FieldOption<T>>
   onChange: (value: T) => void
   gap?: string
   wrap?: boolean
@@ -101,6 +139,8 @@ function TextField({
   type = 'number',
   min,
   max,
+  invalid = false,
+  helper,
 }: {
   label: string
   value: string
@@ -109,10 +149,12 @@ function TextField({
   type?: 'number' | 'text'
   min?: number
   max?: number
+  invalid?: boolean
+  helper?: ReactNode
 }) {
   return (
     <div>
-      <label style={labelStyle}>{label}</label>
+      <label style={{ ...labelStyle, color: invalid ? '#DC2626' : labelStyle.color }}>{label}</label>
       <input
         className="input-underline"
         type={type}
@@ -121,7 +163,9 @@ function TextField({
         onChange={e => onChange(e.target.value)}
         min={min}
         max={max}
+        style={invalid ? { borderBottomColor: '#DC2626' } : undefined}
       />
+      {helper}
     </div>
   )
 }
@@ -155,6 +199,9 @@ function LipidRow({
   placeholder,
   suffix,
   optional,
+  invalid,
+  tone,
+  helper,
 }: {
   label: string
   value: string
@@ -162,34 +209,43 @@ function LipidRow({
   placeholder: string
   suffix: string
   optional?: boolean
+  invalid?: boolean
+  tone?: 'default' | 'warning' | 'success'
+  helper?: ReactNode
 }) {
+  const borderColor = invalid ? '#DC2626' : tone === 'warning' ? '#F59E0B' : tone === 'success' ? '#10B981' : '#E2E8F0'
+  const textColor = invalid ? '#DC2626' : tone === 'warning' ? '#B45309' : tone === 'success' ? '#047857' : '#0052CC'
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F0F0F0' }}>
-      <div style={{ flex: 1, fontSize: '0.9rem', color: '#0A2540', fontWeight: 500 }}>
-        {label}
-        {optional && <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 400, marginLeft: '4px' }}>(選填)</span>}
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: helper ? 'none' : '1px solid #F0F0F0' }}>
+        <div style={{ flex: 1, fontSize: '0.9rem', color: invalid ? '#DC2626' : '#0A2540', fontWeight: 500 }}>
+          {label}
+          {optional && <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 400, marginLeft: '4px' }}>(選填)</span>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <input
+            type="number"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            placeholder={placeholder}
+            style={{
+              width: '80px',
+              border: 'none',
+              borderBottom: `2px solid ${borderColor}`,
+              padding: '6px 4px',
+              textAlign: 'right',
+              fontSize: '1rem',
+              fontWeight: 600,
+              color: textColor,
+              background: 'transparent',
+              outline: 'none',
+            }}
+          />
+          <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>{suffix}</span>
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <input
-          type="number"
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          placeholder={placeholder}
-          style={{
-            width: '80px',
-            border: 'none',
-            borderBottom: '2px solid #E2E8F0',
-            padding: '6px 4px',
-            textAlign: 'right',
-            fontSize: '1rem',
-            fontWeight: 600,
-            color: '#0052CC',
-            background: 'transparent',
-            outline: 'none',
-          }}
-        />
-        <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>{suffix}</span>
-      </div>
+      {helper && <div style={{ padding: '4px 0 8px 0', borderBottom: '1px solid #F0F0F0' }}>{helper}</div>}
     </div>
   )
 }
@@ -224,6 +280,12 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
   const derived = useMemo(() => calculateDerivedMetrics(values), [values])
   const validation = useMemo(() => validateForm(values), [values])
 
+  const missingRequiredSet = useMemo(() => new Set(validation.missingRequired), [validation.missingRequired])
+  const missingRequiredLabels = useMemo(
+    () => validation.missingRequired.map(field => requiredFieldLabels[field]).filter(Boolean) as string[],
+    [validation.missingRequired],
+  )
+
   const setNumericField = (name: NumericFieldName, value: string) => {
     setValues(prev => ({ ...prev, [name]: value }))
   }
@@ -253,10 +315,13 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
                 onChange={value => setNumericField('age', value)}
                 min={18}
                 max={90}
+                invalid={missingRequiredSet.has('age')}
+                helper={missingRequiredSet.has('age') ? <div style={errorTextStyle}>請輸入 18–90 歲的有效年齡</div> : undefined}
               />
               <div>
-                <label style={labelStyle}>性別</label>
+                <label style={{ ...labelStyle, color: missingRequiredSet.has('sex') ? '#DC2626' : labelStyle.color }}>性別</label>
                 <ToggleGroup value={values.sex} options={SEX_OPTIONS} onChange={value => setValues(prev => ({ ...prev, sex: value }))} paddingTop="8px" />
+                {missingRequiredSet.has('sex') && <div style={errorTextStyle}>請選擇性別</div>}
               </div>
             </div>
 
@@ -266,12 +331,14 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
                 placeholder="120"
                 value={values.sbp}
                 onChange={value => setNumericField('sbp', value)}
+                invalid={missingRequiredSet.has('sbp')}
+                helper={missingRequiredSet.has('sbp') ? <div style={errorTextStyle}>請輸入收縮壓</div> : undefined}
               />
               <div>
                 <label style={labelStyle}>服用降壓藥？</label>
                 <ToggleGroup
                   value={values.onBpMeds ? 'yes' : 'no'}
-                  options={[{ label: '是', value: 'yes' }, { label: '否', value: 'no' }]}
+                  options={yesNoOptions}
                   onChange={value => setToggleField('onBpMeds', value === 'yes')}
                   paddingTop="8px"
                 />
@@ -312,8 +379,29 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
         content: (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {LIPID_FIELDS.map(field => {
+              const isMissing = missingRequiredSet.has(field.name)
               const showEstimated = field.name === 'ldl' && !values.ldl
               const placeholder = showEstimated && derived.friedewaldLdl !== null ? String(derived.friedewaldLdl) : field.placeholder
+
+              let tone: 'default' | 'warning' | 'success' = 'default'
+              let helper: ReactNode = null
+
+              if (field.name === 'ldl') {
+                if (derived.tgTooHighForFriedewald && !values.ldl) {
+                  tone = 'warning'
+                  helper = <span style={errorTextStyle}>⚠️ TG ≥ 400 mg/dL，Friedewald 公式不適用，請輸入實測 LDL</span>
+                } else if (!values.ldl && derived.friedewaldLdl !== null) {
+                  tone = 'warning'
+                  helper = <span style={warningTextStyle}>🔶 目前使用估算 LDL：TC − HDL − TG/5 = <strong>{derived.friedewaldLdl} mg/dL</strong></span>
+                } else if (values.ldl) {
+                  tone = 'success'
+                  helper = <span style={infoTextStyle}>✅ 目前使用實測 LDL</span>
+                } else {
+                  helper = <span style={infoTextStyle}>輸入 TC、HDL、TG 後可自動估算 LDL</span>
+                }
+              } else if (isMissing) {
+                helper = <span style={errorTextStyle}>此欄位為必填</span>
+              }
 
               return (
                 <div key={field.name}>
@@ -324,18 +412,10 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
                     placeholder={placeholder}
                     suffix={field.suffix ?? 'mg/dL'}
                     optional={field.optional}
+                    invalid={isMissing && field.name !== 'ldl'}
+                    tone={tone}
+                    helper={helper}
                   />
-                  {field.name === 'ldl' && !values.ldl && (
-                    <div style={{ padding: '4px 0 8px 0', borderBottom: '1px solid #F0F0F0', fontSize: '0.72rem' }}>
-                      {derived.tgTooHighForFriedewald ? (
-                        <span style={{ color: '#EF4444' }}>⚠️ TG ≥ 400 mg/dL，Friedewald 公式不適用，請輸入實測 LDL</span>
-                      ) : derived.friedewaldLdl !== null ? (
-                        <span style={{ color: '#B45309' }}>🔶 由 Friedewald 公式估算：TC − HDL − TG/5 = <strong>{derived.friedewaldLdl} mg/dL</strong></span>
-                      ) : (
-                        <span style={{ color: '#94A3B8' }}>輸入 TC、HDL、TG 後可自動估算 LDL</span>
-                      )}
-                    </div>
-                  )}
                 </div>
               )
             })}
@@ -353,7 +433,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
         ),
       },
     ]
-  }, [derived.bmi, derived.friedewaldLdl, derived.nonHdl, derived.tgTooHighForFriedewald, values])
+  }, [derived.bmi, derived.friedewaldLdl, derived.nonHdl, derived.tgTooHighForFriedewald, missingRequiredSet, values])
 
   const rightSections = useMemo<FormSectionConfig[]>(() => {
     return [
@@ -365,12 +445,6 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
           <>
             <div style={{ marginBottom: '16px' }}>
               <label style={{ ...labelStyle, marginBottom: '10px' }}>是否曾確診以下疾病？</label>
-              <ToggleGroup
-                value={JSON.stringify(COMORBIDITY_TOGGLES.map(toggle => values[toggle.name]))}
-                options={[]}
-                onChange={() => undefined}
-                wrap
-              />
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {COMORBIDITY_TOGGLES.map(toggle => (
                   <PillButton
@@ -413,7 +487,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
               <label style={{ ...labelStyle, marginBottom: '10px' }}>早發 ASCVD 家族史</label>
               <ToggleGroup
                 value={values.familyHistoryPrematureASCVD ? 'yes' : 'no'}
-                options={[{ label: '有', value: 'yes' }, { label: '無', value: 'no' }]}
+                options={familyHistoryOptions}
                 onChange={value => setToggleField('familyHistoryPrematureASCVD', value === 'yes')}
               />
             </div>
@@ -464,7 +538,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
             <SubmitButton disabled={!validation.isValid} onClick={handleSubmit} />
             {!validation.isValid && (
               <div style={{ marginTop: '10px', ...subtleTextStyle }}>
-                component tree phase：section 已抽出，下一步可補欄位錯誤提示與 visual states。
+                尚缺：{missingRequiredLabels.join('、')}
               </div>
             )}
           </div>
@@ -473,6 +547,11 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
 
       <div className="mobile-only" style={{ marginTop: '16px', paddingBottom: '24px' }}>
         <SubmitButton disabled={!validation.isValid} onClick={handleSubmit} />
+        {!validation.isValid && (
+          <div style={{ marginTop: '10px', ...subtleTextStyle }}>
+            尚缺：{missingRequiredLabels.join('、')}
+          </div>
+        )}
       </div>
     </div>
   )
