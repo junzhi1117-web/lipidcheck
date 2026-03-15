@@ -48,5 +48,8 @@ export function calcTaiwan(input: UserInput): GuidelineResult {
     ldlTargetText: `< ${ldlTarget} mg/dL`,
     currentLdl: ldl,
     achieved: ldl < ldlTarget,
+    notes: riskLevel === 'extreme'
+      ? '台灣指引分級採簡化條件估算；極高風險未完整涵蓋 recurrent ASCVD、polyvascular disease 等細項。'
+      : undefined,
   }
 }

@@ -40,17 +40,18 @@ export function calcEscEas(input: UserInput): GuidelineResult {
   let ldlTarget: number
   let ldlTargetText: string
   let scoreRisk: number | undefined
+  let notes: string | undefined
 
   // 極高風險（Extreme，2025新增）：進展性ASCVD 或 ASCVD+多重高風險
   if (ascvd && (dm || ckd === 'G4' || ckd === 'G5' || fh)) {
     riskLevel = 'extreme'
     ldlTarget = 40
     ldlTargetText = '< 40 mg/dL'
+    notes = 'Extreme risk 條件採簡化代理，未完整涵蓋所有進展性 ASCVD 細項。'
   }
   // 非常高風險
   else if (
     ascvd ||
-    (dm && (ckd !== 'none' || age >= 40)) || // DM with TOD or age
     ckd === 'G4' ||
     ckd === 'G5'
   ) {
@@ -69,6 +70,9 @@ export function calcEscEas(input: UserInput): GuidelineResult {
     riskLevel = 'high'
     ldlTarget = 70
     ldlTargetText = '< 70 mg/dL'
+    if (dm) {
+      notes = '糖尿病分級採簡化處理；ESC/EAS 原始指引還會納入病程、器官損傷與多重風險因子。'
+    }
   } else {
     // 需要 SCORE2（2021 ESC 依年齡分層門檻，Low-to-Moderate Risk region）
     // < 50 歲：high ≥ 2.5%，very-high ≥ 7.5%
@@ -122,7 +126,9 @@ export function calcEscEas(input: UserInput): GuidelineResult {
     ldlTargetText,
     currentLdl: ldl,
     achieved: ldl < ldlTarget,
-    notes: '注意：此風險計算以歐洲族群為基準，台灣用戶數值僅供參考（依據 2025 ESC/EAS 最新指引）',
+    notes: notes
+      ? `${notes} 注意：此風險計算以歐洲族群為基準，台灣用戶數值僅供參考（依據 2025 ESC/EAS 最新指引）`
+      : '注意：此風險計算以歐洲族群為基準，台灣用戶數值僅供參考（依據 2025 ESC/EAS 最新指引）',
     tenYearRisk: scoreRisk,
   }
 }

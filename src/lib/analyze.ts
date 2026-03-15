@@ -60,9 +60,9 @@ export function analyze(input: UserInput): AnalysisResult {
     }
     const otherLabel = twLabel[otherMaxRisk]
     if (otherMaxRisk === 'extreme' && taiwan.riskLevel === 'very-high') {
-      crossGuidelineNote = `台灣指引認為您屬於「非常高風險」（膽固醇目標 < 70 mg/dL），但美國和歐洲的指引將您列為「極高風險」，建議目標要更低。這是因為各國指引對風險的計算方式略有不同。建議您就診時告訴醫師，一起討論是否需要更積極的治療。`
+      crossGuidelineNote = `依目前簡化條件推估，台灣指引下您屬於「非常高風險」（膽固醇目標 < 70 mg/dL），但歐美工具可能把您歸為更高風險，建議目標也會更低。建議就診時與醫師討論是否需要更積極的治療。`
     } else {
-      crossGuidelineNote = `台灣指引對您的風險評估（${twLabel[taiwan.riskLevel]}）比歐美指引（${otherLabel}）寬鬆一個等級。就診時可以跟醫師提一下，討論是否需要更積極地控制膽固醇。`
+      crossGuidelineNote = `依目前簡化條件推估，台灣指引下的風險分層（${twLabel[taiwan.riskLevel]}）比歐美工具（${otherLabel}）保守；建議就診時與醫師討論是否採更積極的 LDL 控制目標。`
     }
   }
 
