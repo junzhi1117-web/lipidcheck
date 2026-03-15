@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { UserInput, AnalysisResult, HistoryEntry } from './types'
 import { analyze } from './lib/analyze'
-import { InputForm } from './components/InputForm'
+import { InputFormV2 } from './components/InputFormV2'
 import { ResultPage } from './components/ResultPage'
 import { WaveHeader } from './components/WaveHeader'
 import { saveHistory } from './components/HistoryChart'
@@ -148,7 +148,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F6F9FC]">
       <WaveHeader />
-      <InputForm onSubmit={handleSubmit} initialInput={initialInput ?? undefined} />
+      <InputFormV2 onSubmit={handleSubmit} initialInput={initialInput ?? undefined} />
     </div>
   )
 }
