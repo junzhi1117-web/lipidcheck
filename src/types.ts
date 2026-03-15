@@ -8,6 +8,11 @@ export interface UserInput {
   ldl: number
   hdl: number
   tg: number
+  heightCm?: number | null
+  weightKg?: number | null
+  bmi?: number | null
+  egfr?: number | null
+  onStatin?: boolean
   ascvd: boolean
   dm: boolean
   ckd: 'none' | 'G1' | 'G2' | 'G3a' | 'G3b' | 'G4' | 'G5'

@@ -32,6 +32,10 @@ export function InputForm({ onSubmit, initialInput }: Props) {
   const [ldl, setLdl] = useState(initialInput?.ldl?.toString() ?? '')
   const [hdl, setHdl] = useState(initialInput?.hdl?.toString() ?? '')
   const [tg, setTg] = useState(initialInput?.tg?.toString() ?? '')
+  const [heightCm, setHeightCm] = useState(initialInput?.heightCm?.toString() ?? '')
+  const [weightKg, setWeightKg] = useState(initialInput?.weightKg?.toString() ?? '')
+  const [egfr, setEgfr] = useState(initialInput?.egfr?.toString() ?? '')
+  const [onStatin, setOnStatin] = useState(initialInput?.onStatin ?? false)
   const [ascvd, setAscvd] = useState(initialInput?.ascvd ?? false)
   const [dm, setDm] = useState(initialInput?.dm ?? false)
   const [ckd, setCkd] = useState<CKDLevel>(initialInput?.ckd ?? 'none')
@@ -52,6 +56,12 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       ? Math.round((tcNum - hdlNum - tgNum / 5) * 10) / 10
       : null
   const tgTooHigh = tg && tgNum >= 400
+
+  const heightNum = parseFloat(heightCm)
+  const weightNum = parseFloat(weightKg)
+  const bmi = heightCm && weightKg && !isNaN(heightNum) && !isNaN(weightNum) && heightNum > 0 && weightNum > 0
+    ? Math.round((weightNum / ((heightNum / 100) ** 2)) * 10) / 10
+    : null
 
   // LDL source: use measured if provided, else Friedewald
   const effectiveLdl = ldl ? parseFloat(ldl) : friedewaldLdl
@@ -76,6 +86,11 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       ldl: effectiveLdl,
       hdl: parseFloat(hdl),
       tg: parseFloat(tg),
+      heightCm: heightCm ? parseFloat(heightCm) : null,
+      weightKg: weightKg ? parseFloat(weightKg) : null,
+      bmi,
+      egfr: egfr ? parseFloat(egfr) : null,
+      onStatin,
       ascvd, dm, ckd, fh,
       familyHistoryPrematureASCVD,
       cacScore: cacScore ? parseFloat(cacScore) : null,
@@ -149,7 +164,7 @@ export function InputForm({ onSubmit, initialInput }: Props) {
             </div>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
             <label style={labelStyle}>收縮壓（mmHg）</label>
             <input className="input-underline" type="number" placeholder="120" value={sbp} onChange={e => setSbp(e.target.value)} />
@@ -160,6 +175,28 @@ export function InputForm({ onSubmit, initialInput }: Props) {
               <ToggleBtn active={onBpMeds} onClick={() => setOnBpMeds(true)}>是</ToggleBtn>
               <ToggleBtn active={!onBpMeds} onClick={() => setOnBpMeds(false)}>否</ToggleBtn>
             </div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+          <div>
+            <label style={labelStyle}>身高（cm）</label>
+            <input className="input-underline" type="number" placeholder="170" value={heightCm} onChange={e => setHeightCm(e.target.value)} />
+          </div>
+          <div>
+            <label style={labelStyle}>體重（kg）</label>
+            <input className="input-underline" type="number" placeholder="70" value={weightKg} onChange={e => setWeightKg(e.target.value)} />
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div>
+            <label style={labelStyle}>BMI（自動計算）</label>
+            <div className="input-underline" style={{ paddingTop: '10px', minHeight: '42px', color: bmi !== null ? '#0A2540' : '#94A3B8', fontWeight: 600 }}>
+              {bmi !== null ? bmi : '請輸入身高與體重'}
+            </div>
+          </div>
+          <div>
+            <label style={labelStyle}>eGFR</label>
+            <input className="input-underline" type="number" placeholder="90" value={egfr} onChange={e => setEgfr(e.target.value)} />
           </div>
         </div>
       </div>
@@ -250,6 +287,7 @@ export function InputForm({ onSubmit, initialInput }: Props) {
             <ToggleBtn active={dm} onClick={() => setDm(!dm)}>糖尿病</ToggleBtn>
             <ToggleBtn active={fh} onClick={() => setFh(!fh)}>家族性高膽固醇血症 (FH)</ToggleBtn>
             <ToggleBtn active={smoker} onClick={() => setSmoker(!smoker)}>吸菸</ToggleBtn>
+            <ToggleBtn active={onStatin} onClick={() => setOnStatin(!onStatin)}>目前有吃 statin</ToggleBtn>
           </div>
         </div>
 

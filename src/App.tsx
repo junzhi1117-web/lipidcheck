@@ -21,6 +21,10 @@ function parseUrlParams(): Partial<UserInput> | null {
   const ldl = parseFloat(params.get('ldl') || '')
   const hdl = parseFloat(params.get('hdl') || '')
   const tg = parseFloat(params.get('tg') || '')
+  const ht = parseFloat(params.get('ht') || '')
+  const wt = parseFloat(params.get('wt') || '')
+  const egfr = parseFloat(params.get('egfr') || '')
+  const statin = params.get('statin')
   const ascvd = params.get('ascvd')
   const dm = params.get('dm')
   const ckd = params.get('ckd') as UserInput['ckd'] | null
@@ -42,6 +46,11 @@ function parseUrlParams(): Partial<UserInput> | null {
     ldl,
     hdl,
     tg,
+    heightCm: isNaN(ht) ? null : ht,
+    weightKg: isNaN(wt) ? null : wt,
+    bmi: !isNaN(ht) && !isNaN(wt) && ht > 0 && wt > 0 ? Math.round((wt / ((ht / 100) ** 2)) * 10) / 10 : null,
+    egfr: isNaN(egfr) ? null : egfr,
+    onStatin: statin === '1',
     ascvd: ascvd === '1',
     dm: dm === '1',
     ckd: ckd && ['none', 'G1', 'G2', 'G3a', 'G3b', 'G4', 'G5'].includes(ckd) ? ckd : 'none',
@@ -64,6 +73,10 @@ function writeUrlParams(input: UserInput) {
   params.set('ldl', String(input.ldl))
   params.set('hdl', String(input.hdl))
   params.set('tg', String(input.tg))
+  if (input.heightCm !== undefined && input.heightCm !== null && !Number.isNaN(input.heightCm)) params.set('ht', String(input.heightCm))
+  if (input.weightKg !== undefined && input.weightKg !== null && !Number.isNaN(input.weightKg)) params.set('wt', String(input.weightKg))
+  if (input.egfr !== undefined && input.egfr !== null && !Number.isNaN(input.egfr)) params.set('egfr', String(input.egfr))
+  if (input.onStatin) params.set('statin', '1')
   params.set('ascvd', input.ascvd ? '1' : '0')
   params.set('dm', input.dm ? '1' : '0')
   params.set('ckd', input.ckd)

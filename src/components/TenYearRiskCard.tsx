@@ -73,7 +73,7 @@ export function TenYearRiskCard({ accaha, score2 }: Props) {
       }}>
         <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>⚠️</span>
         <div style={{ fontSize: '0.72rem', color: '#664D00', lineHeight: 1.65 }}>
-          ACC/AHA 2026 已改採 PREVENT-ASCVD 架構。本版先用過渡性估算支援治療分流，方向上較接近 2026 新門檻；實際數值仍只適合拿來與醫師討論，不建議單獨作為診斷依據。
+          ACC/AHA 2026 已改採 PREVENT-ASCVD。本版已接上 10 年 PREVENT-ASCVD base model；若缺少身高/體重、eGFR 或 statin 使用資訊，就不會硬算風險數字。結果適合拿來和醫師討論，不建議單獨作為診斷依據。
         </div>
       </div>
     </div>
