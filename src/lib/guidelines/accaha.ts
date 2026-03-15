@@ -275,11 +275,11 @@ export function calcAccAha(input: UserInput): GuidelineResult {
       if (ldl >= 160 || strongFamilyHistory || hasRiskEnhancer) {
         ldlTarget = 100
         nonHdlTarget = 130
-        ldlTargetText = 'PREVENT 需要 BMI、eGFR、是否正在吃 statin 才能正式計算；在資料補齊前，先以 lifestyle 為主，若整體風險訊號偏高，可和醫師討論是否考慮中等強度 statin。'
+        ldlTargetText = 'PREVENT 需要身高/體重（用來計算 BMI）、eGFR、是否正在吃 statin 才能正式計算；在資料補齊前，先以 lifestyle 為主，若整體風險訊號偏高，可和醫師討論是否考慮中等強度 statin。'
       } else {
-        ldlTargetText = '若要正式套用 PREVENT-ASCVD，還需要 BMI、eGFR、是否正在吃 statin；目前先以 lifestyle 為主。'
+        ldlTargetText = '若要正式套用 PREVENT-ASCVD，還需要身高/體重（BMI）、eGFR、是否正在吃 statin；目前先以 lifestyle 為主。'
       }
-      notes = 'ACC/AHA 2026 primary prevention 已改用 PREVENT-ASCVD。因目前缺少 BMI、eGFR 或 statin use，這裡不硬算風險數字，避免做成假公式。'
+      notes = 'ACC/AHA 2026 primary prevention 已改用 PREVENT-ASCVD。因目前缺少身高/體重（BMI）、eGFR 或 statin use，這裡不硬算風險數字，避免做成假公式。'
     } else if (tenYearRisk >= 10) {
       riskLevel = 'high'
       ldlTarget = 70
