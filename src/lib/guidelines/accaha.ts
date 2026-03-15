@@ -238,11 +238,15 @@ export function calcAccAha(input: UserInput): GuidelineResult {
       } else if (cacScore >= 100 && cacScore < 300) {
         ldlTarget = 70
         nonHdlTarget = 100
+        ldlTargetText = '建議更積極治療；目標 LDL-C <70、non-HDL-C <100，並視情況考慮 high-intensity statin'
         riskLevel = RISK_ORDER[riskLevel] >= RISK_ORDER['high'] ? riskLevel : 'high'
+        ldlReductionPercentMin = 50
+        ldlReductionPercentMax = 50
         notes += ' CAC ≥100 時，2026 ACC/AHA 支持把治療目標提升到 LDL-C <70、non-HDL-C <100。'
       } else if (cacScore >= 300) {
         ldlTarget = 55
         nonHdlTarget = 85
+        ldlTargetText = '建議積極加強治療；目標 LDL-C <55、non-HDL-C <85，並至少降低 50%'
         riskLevel = 'extreme'
         ldlReductionPercentMin = 50
         ldlReductionPercentMax = 50
