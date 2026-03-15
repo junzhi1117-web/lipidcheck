@@ -1,3 +1,4 @@
+import type { CSSProperties, ReactNode } from 'react'
 import type { UserInput } from '../../types'
 
 export type CKDLevel = UserInput['ckd']
@@ -66,4 +67,12 @@ export interface TextFieldConfig {
 export interface ToggleFieldConfig {
   name: ToggleFieldName
   label: string
+}
+
+export interface FormSectionConfig {
+  key: string
+  title: string
+  className?: string
+  style?: CSSProperties
+  content: ReactNode
 }
