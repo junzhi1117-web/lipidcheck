@@ -27,9 +27,32 @@ interface Props {
   initialInput?: Partial<UserInput>
 }
 
+const COLORS = {
+  text: '#0A2540',
+  muted: '#64748B',
+  subtle: '#94A3B8',
+  border: '#E2E8F0',
+  borderLight: '#F0F0F0',
+  primary: '#0052CC',
+  danger: '#DC2626',
+  warning: '#F59E0B',
+  warningText: '#B45309',
+  success: '#10B981',
+  successText: '#047857',
+} as const
+
+const SIZES = {
+  inputWidth: '80px',
+  unitWidth: '40px',
+  cardGap: '16px',
+  fieldGap: '20px',
+  compactGap: '12px',
+  inlineGap: '8px',
+} as const
+
 const labelStyle: CSSProperties = {
   fontSize: '0.8rem',
-  color: '#64748B',
+  color: COLORS.muted,
   fontWeight: 500,
   marginBottom: '4px',
   display: 'block',
@@ -37,31 +60,71 @@ const labelStyle: CSSProperties = {
 
 const subtleTextStyle: CSSProperties = {
   fontSize: '0.75rem',
-  color: '#94A3B8',
+  color: COLORS.subtle,
 }
 
 const errorTextStyle: CSSProperties = {
   fontSize: '0.72rem',
-  color: '#DC2626',
+  color: COLORS.danger,
   marginTop: '6px',
 }
 
 const warningTextStyle: CSSProperties = {
   fontSize: '0.72rem',
-  color: '#B45309',
+  color: COLORS.warningText,
   marginTop: '6px',
 }
 
 const infoTextStyle: CSSProperties = {
   fontSize: '0.72rem',
-  color: '#64748B',
+  color: COLORS.muted,
   marginTop: '6px',
 }
 
 const twoColumnGridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
-  gap: '20px',
+  gap: SIZES.fieldGap,
+}
+
+const compactGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: SIZES.compactGap,
+  marginBottom: SIZES.compactGap,
+}
+
+const rowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  padding: '8px 0',
+}
+
+const rowLabelStyle: CSSProperties = {
+  flex: 1,
+  fontSize: '0.9rem',
+  color: COLORS.text,
+  fontWeight: 500,
+}
+
+const rowValueWrapStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+}
+
+const selectStyle: CSSProperties = {
+  width: '100%',
+  padding: '10px 12px',
+  borderRadius: '10px',
+  border: `1.5px solid ${COLORS.border}`,
+  backgroundColor: 'white',
+  color: COLORS.text,
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  cursor: 'pointer',
+  outline: 'none',
+  appearance: 'auto',
 }
 
 const yesNoOptions = [
@@ -109,7 +172,7 @@ function ToggleGroup<T extends string>({
   value,
   options,
   onChange,
-  gap = '8px',
+  gap = SIZES.inlineGap,
   wrap = false,
   paddingTop = '0px',
 }: {
@@ -154,7 +217,7 @@ function TextField({
 }) {
   return (
     <div>
-      <label style={{ ...labelStyle, color: invalid ? '#DC2626' : labelStyle.color }}>{label}</label>
+      <label style={{ ...labelStyle, color: invalid ? COLORS.danger : labelStyle.color }}>{label}</label>
       <input
         className="input-underline"
         type={type}
@@ -163,7 +226,7 @@ function TextField({
         onChange={e => onChange(e.target.value)}
         min={min}
         max={max}
-        style={invalid ? { borderBottomColor: '#DC2626' } : undefined}
+        style={invalid ? { borderBottomColor: COLORS.danger } : undefined}
       />
       {helper}
     </div>
@@ -182,7 +245,7 @@ function ComputedField({ label, value, mutedValue }: { label: string; value: str
         style={{
           paddingTop: '10px',
           minHeight: '42px',
-          color: isMuted ? '#94A3B8' : '#0A2540',
+          color: isMuted ? COLORS.subtle : COLORS.text,
           fontWeight: 600,
         }}
       >
@@ -213,24 +276,24 @@ function LipidRow({
   tone?: 'default' | 'warning' | 'success'
   helper?: ReactNode
 }) {
-  const borderColor = invalid ? '#DC2626' : tone === 'warning' ? '#F59E0B' : tone === 'success' ? '#10B981' : '#E2E8F0'
-  const textColor = invalid ? '#DC2626' : tone === 'warning' ? '#B45309' : tone === 'success' ? '#047857' : '#0052CC'
+  const borderColor = invalid ? COLORS.danger : tone === 'warning' ? COLORS.warning : tone === 'success' ? COLORS.success : COLORS.border
+  const textColor = invalid ? COLORS.danger : tone === 'warning' ? COLORS.warningText : tone === 'success' ? COLORS.successText : COLORS.primary
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: helper ? 'none' : '1px solid #F0F0F0' }}>
-        <div style={{ flex: 1, fontSize: '0.9rem', color: invalid ? '#DC2626' : '#0A2540', fontWeight: 500 }}>
+      <div style={{ ...rowStyle, borderBottom: helper ? 'none' : `1px solid ${COLORS.borderLight}` }}>
+        <div style={{ ...rowLabelStyle, color: invalid ? COLORS.danger : COLORS.text }}>
           {label}
-          {optional && <span style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 400, marginLeft: '4px' }}>(選填)</span>}
+          {optional && <span style={{ fontSize: '0.7rem', color: COLORS.subtle, fontWeight: 400, marginLeft: '4px' }}>(選填)</span>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={rowValueWrapStyle}>
           <input
             type="number"
             value={value}
             onChange={e => onChange(e.target.value)}
             placeholder={placeholder}
             style={{
-              width: '80px',
+              width: SIZES.inputWidth,
               border: 'none',
               borderBottom: `2px solid ${borderColor}`,
               padding: '6px 4px',
@@ -242,10 +305,10 @@ function LipidRow({
               outline: 'none',
             }}
           />
-          <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>{suffix}</span>
+          <span style={{ fontSize: '0.75rem', color: COLORS.muted, width: SIZES.unitWidth }}>{suffix}</span>
         </div>
       </div>
-      {helper && <div style={{ padding: '4px 0 8px 0', borderBottom: '1px solid #F0F0F0' }}>{helper}</div>}
+      {helper && <div style={{ padding: '4px 0 8px 0', borderBottom: `1px solid ${COLORS.borderLight}` }}>{helper}</div>}
     </div>
   )
 }
@@ -260,8 +323,8 @@ function SubmitButton({ disabled, onClick }: { disabled: boolean; onClick: () =>
         padding: '16px',
         borderRadius: '14px',
         border: 'none',
-        backgroundColor: disabled ? '#E2E8F0' : '#0052CC',
-        color: disabled ? '#94A3B8' : 'white',
+        backgroundColor: disabled ? COLORS.border : COLORS.primary,
+        color: disabled ? COLORS.subtle : 'white',
         fontSize: '1rem',
         fontWeight: 600,
         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -304,10 +367,10 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
       {
         key: 'basic-info',
         title: '基本資料',
-        style: { marginBottom: '16px' },
+        style: { marginBottom: SIZES.cardGap },
         content: (
           <>
-            <div style={{ ...twoColumnGridStyle, marginBottom: '20px' }}>
+            <div style={{ ...twoColumnGridStyle, marginBottom: SIZES.fieldGap }}>
               <TextField
                 label="年齡（歲）"
                 placeholder="18–90"
@@ -319,13 +382,13 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
                 helper={missingRequiredSet.has('age') ? <div style={errorTextStyle}>請輸入 18–90 歲的有效年齡</div> : undefined}
               />
               <div>
-                <label style={{ ...labelStyle, color: missingRequiredSet.has('sex') ? '#DC2626' : labelStyle.color }}>性別</label>
+                <label style={{ ...labelStyle, color: missingRequiredSet.has('sex') ? COLORS.danger : labelStyle.color }}>性別</label>
                 <ToggleGroup value={values.sex} options={SEX_OPTIONS} onChange={value => setValues(prev => ({ ...prev, sex: value }))} paddingTop="8px" />
                 {missingRequiredSet.has('sex') && <div style={errorTextStyle}>請選擇性別</div>}
               </div>
             </div>
 
-            <div style={{ ...twoColumnGridStyle, marginBottom: '20px' }}>
+            <div style={{ ...twoColumnGridStyle, marginBottom: SIZES.fieldGap }}>
               <TextField
                 label="收縮壓（mmHg）"
                 placeholder="120"
@@ -345,7 +408,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
               </div>
             </div>
 
-            <div style={{ ...twoColumnGridStyle, marginBottom: '20px' }}>
+            <div style={{ ...twoColumnGridStyle, marginBottom: SIZES.fieldGap }}>
               <TextField
                 label="身高（cm）"
                 placeholder="170"
@@ -375,7 +438,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
       {
         key: 'lipids',
         title: '血脂數值（mg/dL）',
-        style: { marginBottom: '16px' },
+        style: { marginBottom: SIZES.cardGap },
         content: (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {LIPID_FIELDS.map(field => {
@@ -404,29 +467,28 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
               }
 
               return (
-                <div key={field.name}>
-                  <LipidRow
-                    label={field.label}
-                    value={values[field.name]}
-                    onChange={value => setNumericField(field.name, value)}
-                    placeholder={placeholder}
-                    suffix={field.suffix ?? 'mg/dL'}
-                    optional={field.optional}
-                    invalid={isMissing && field.name !== 'ldl'}
-                    tone={tone}
-                    helper={helper}
-                  />
-                </div>
+                <LipidRow
+                  key={field.name}
+                  label={field.label}
+                  value={values[field.name]}
+                  onChange={value => setNumericField(field.name, value)}
+                  placeholder={placeholder}
+                  suffix={field.suffix ?? 'mg/dL'}
+                  optional={field.optional}
+                  invalid={isMissing && field.name !== 'ldl'}
+                  tone={tone}
+                  helper={helper}
+                />
               )
             })}
 
-            <div style={{ display: 'flex', alignItems: 'center', padding: '8px 0' }}>
-              <div style={{ flex: 1, fontSize: '0.9rem', color: '#64748B' }}>Non-HDL（自動計算）</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '80px', textAlign: 'right', fontSize: '1rem', fontWeight: 600, color: '#64748B', padding: '6px 4px' }}>
+            <div style={rowStyle}>
+              <div style={{ ...rowLabelStyle, color: COLORS.muted }}>Non-HDL（自動計算）</div>
+              <div style={rowValueWrapStyle}>
+                <span style={{ width: SIZES.inputWidth, textAlign: 'right', fontSize: '1rem', fontWeight: 600, color: COLORS.muted, padding: '6px 4px' }}>
                   {derived.nonHdl !== null ? derived.nonHdl : '—'}
                 </span>
-                <span style={{ fontSize: '0.75rem', color: '#64748B', width: '40px' }}>mg/dL</span>
+                <span style={{ fontSize: '0.75rem', color: COLORS.muted, width: SIZES.unitWidth }}>mg/dL</span>
               </div>
             </div>
           </div>
@@ -440,12 +502,12 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
       {
         key: 'comorbidity',
         title: '共病症 / 風險因子',
-        style: { marginBottom: '16px' },
+        style: { marginBottom: SIZES.cardGap },
         content: (
           <>
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: SIZES.cardGap }}>
               <label style={{ ...labelStyle, marginBottom: '10px' }}>是否曾確診以下疾病？</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: SIZES.inlineGap }}>
                 {COMORBIDITY_TOGGLES.map(toggle => (
                   <PillButton
                     key={toggle.name}
@@ -458,24 +520,12 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
               </div>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: SIZES.cardGap }}>
               <label style={{ ...labelStyle, marginBottom: '10px' }}>慢性腎臟病（CKD）分期</label>
               <select
                 value={values.ckd}
                 onChange={e => setValues(prev => ({ ...prev, ckd: e.target.value as InputFormValues['ckd'] }))}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '10px',
-                  border: '1.5px solid #E2E8F0',
-                  backgroundColor: 'white',
-                  color: '#0A2540',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  outline: 'none',
-                  appearance: 'auto',
-                }}
+                style={selectStyle}
               >
                 {CKD_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -483,7 +533,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
               </select>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: SIZES.cardGap }}>
               <label style={{ ...labelStyle, marginBottom: '10px' }}>早發 ASCVD 家族史</label>
               <ToggleGroup
                 value={values.familyHistoryPrematureASCVD ? 'yes' : 'no'}
@@ -492,7 +542,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div style={compactGridStyle}>
               {ADVANCED_FIELDS.slice(0, 2).map(field => (
                 <TextField
                   key={field.name}
@@ -545,7 +595,7 @@ export function InputFormV2({ onSubmit, initialInput }: Props) {
         </div>
       </div>
 
-      <div className="mobile-only" style={{ marginTop: '16px', paddingBottom: '24px' }}>
+      <div className="mobile-only" style={{ marginTop: SIZES.cardGap, paddingBottom: '24px' }}>
         <SubmitButton disabled={!validation.isValid} onClick={handleSubmit} />
         {!validation.isValid && (
           <div style={{ marginTop: '10px', ...subtleTextStyle }}>
