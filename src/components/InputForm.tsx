@@ -36,6 +36,10 @@ export function InputForm({ onSubmit, initialInput }: Props) {
   const [dm, setDm] = useState(initialInput?.dm ?? false)
   const [ckd, setCkd] = useState<CKDLevel>(initialInput?.ckd ?? 'none')
   const [fh, setFh] = useState(initialInput?.fh ?? false)
+  const [familyHistoryPrematureASCVD, setFamilyHistoryPrematureASCVD] = useState(initialInput?.familyHistoryPrematureASCVD ?? false)
+  const [cacScore, setCacScore] = useState(initialInput?.cacScore?.toString() ?? '')
+  const [lpA, setLpA] = useState(initialInput?.lpA?.toString() ?? '')
+  const [apoB, setApoB] = useState(initialInput?.apoB?.toString() ?? '')
 
   const nonHdl = tc && hdl ? (parseFloat(tc) - parseFloat(hdl)).toFixed(1) : '—'
 
@@ -73,6 +77,10 @@ export function InputForm({ onSubmit, initialInput }: Props) {
       hdl: parseFloat(hdl),
       tg: parseFloat(tg),
       ascvd, dm, ckd, fh,
+      familyHistoryPrematureASCVD,
+      cacScore: cacScore ? parseFloat(cacScore) : null,
+      lpA: lpA ? parseFloat(lpA) : null,
+      apoB: apoB ? parseFloat(apoB) : null,
       ldlSource,
     })
   }
@@ -246,7 +254,7 @@ export function InputForm({ onSubmit, initialInput }: Props) {
         </div>
 
         {/* CKD — select dropdown */}
-        <div>
+        <div style={{ marginBottom: '16px' }}>
           <label style={{ ...labelStyle, marginBottom: '10px' }}>慢性腎臟病（CKD）分期</label>
           <select
             value={ckd}
@@ -273,6 +281,30 @@ export function InputForm({ onSubmit, initialInput }: Props) {
             <option value="G4">重度下降（G4）</option>
             <option value="G5">極重度下降/腎衰竭（G5）</option>
           </select>
+        </div>
+
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ ...labelStyle, marginBottom: '10px' }}>早發 ASCVD 家族史</label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <ToggleBtn active={familyHistoryPrematureASCVD} onClick={() => setFamilyHistoryPrematureASCVD(true)}>有</ToggleBtn>
+            <ToggleBtn active={!familyHistoryPrematureASCVD} onClick={() => setFamilyHistoryPrematureASCVD(false)}>無</ToggleBtn>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+          <div>
+            <label style={labelStyle}>CAC score</label>
+            <input className="input-underline" type="number" placeholder="選填" value={cacScore} onChange={e => setCacScore(e.target.value)} />
+          </div>
+          <div>
+            <label style={labelStyle}>Lp(a)（mg/dL）</label>
+            <input className="input-underline" type="number" placeholder="選填" value={lpA} onChange={e => setLpA(e.target.value)} />
+          </div>
+        </div>
+
+        <div>
+          <label style={labelStyle}>ApoB（mg/dL）</label>
+          <input className="input-underline" type="number" placeholder="選填" value={apoB} onChange={e => setApoB(e.target.value)} />
         </div>
       </div>
 

@@ -68,9 +68,9 @@ export function ResultPage({ result, onBack, historyEntry }: Props) {
         </div>
 
         {/* 10 年心血管風險 */}
-        {(result.tenYearRisk.pce !== null || result.tenYearRisk.score2 !== null) && (
+        {(result.tenYearRisk.accaha !== null || result.tenYearRisk.score2 !== null) && (
           <div style={{ marginBottom: '20px' }}>
-            <TenYearRiskCard pce={result.tenYearRisk.pce} score2={result.tenYearRisk.score2} />
+            <TenYearRiskCard accaha={result.tenYearRisk.accaha} score2={result.tenYearRisk.score2} />
           </div>
         )}
 

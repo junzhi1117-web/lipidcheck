@@ -1,157 +1,285 @@
 import type { UserInput, GuidelineResult, RiskLevel } from '../../types'
 
-// Pooled Cohort Equations (Goff et al. 2014, ACC/AHA)
-// 使用 White 族群係數；亞裔用戶標注免責聲明
-function calcPCE(input: UserInput): number {
-  const { age, sex, tc, hdl, sbp, onBpMeds, smoker, dm } = input
-  const lnAge = Math.log(age)
-  const lnTc = Math.log(tc)
-  const lnHdl = Math.log(hdl)
-  const lnSbp = Math.log(sbp)
+// Transitional estimator for 2026 ACC/AHA pathwaying.
+// NOTE: 2026 guideline adopts PREVENT-ASCVD, but the exact implementation
+// coefficients are not yet embedded in this app. We therefore use a lightweight
+// approximation to support branch selection and clearly label it as an estimate.
+function calcPreventEstimate(input: UserInput): number {
+  const { age, sex, tc, hdl, sbp, onBpMeds, smoker, dm, ckd } = input
 
-  let sum: number
-  let baselineSurvival: number
-  let mean: number
+  let score = 0
 
-  if (sex === 'female') {
-    // White Women
-    sum =
-      -29.799 * lnAge +
-      4.884 * lnAge * lnAge +
-      13.540 * lnTc +
-      -3.114 * lnAge * lnTc +
-      -13.578 * lnHdl +
-      3.149 * lnAge * lnHdl +
-      (onBpMeds ? 2.019 : 1.957) * lnSbp +
-      (smoker ? 7.574 : 0) +
-      (smoker ? -1.665 * lnAge : 0) +
-      (dm ? 0.661 : 0)
-    baselineSurvival = 0.9665
-    mean = -29.799
-  } else {
-    // White Men
-    sum =
-      12.344 * lnAge +
-      11.853 * lnTc +
-      -2.664 * lnAge * lnTc +
-      -7.990 * lnHdl +
-      1.769 * lnAge * lnHdl +
-      (onBpMeds ? 1.797 : 1.764) * lnSbp +
-      (smoker ? 7.837 : 0) +
-      (smoker ? -1.795 * lnAge : 0) +
-      (dm ? 0.658 : 0)
-    baselineSurvival = 0.9144
-    mean = 61.18
-  }
+  score += Math.max(0, age - 30) * 0.14
+  score += sex === 'male' ? 1.2 : 0
+  score += Math.max(0, tc - 180) * 0.018
+  score += Math.max(0, 50 - hdl) * 0.09
+  score += Math.max(0, sbp - 110) * (onBpMeds ? 0.05 : 0.04)
+  score += smoker ? 2.2 : 0
+  score += dm ? 2.0 : 0
+  score += ckd === 'G3a' || ckd === 'G3b' ? 1.6 : 0
+  score += ckd === 'G4' || ckd === 'G5' ? 3.0 : 0
 
-  const risk = 1 - Math.pow(baselineSurvival, Math.exp(sum - mean))
-  return Math.round(Math.min(Math.max(risk * 100, 0.1), 99.9) * 10) / 10
+  const risk = Math.min(Math.max(score, 0.3), 35)
+  return Math.round(risk * 10) / 10
+}
+
+function hasStage3PlusCkd(ckd: UserInput['ckd']) {
+  return ckd === 'G3a' || ckd === 'G3b' || ckd === 'G4' || ckd === 'G5'
+}
+
+function hasAdvancedCkd(ckd: UserInput['ckd']) {
+  return ckd === 'G3b' || ckd === 'G4' || ckd === 'G5'
 }
 
 export function calcAccAha(input: UserInput): GuidelineResult {
-  const { age, ldl, ascvd, dm, ckd, fh, sbp } = input
+  const {
+    age,
+    ldl,
+    ascvd,
+    dm,
+    ckd,
+    fh,
+    familyHistoryPrematureASCVD,
+    cacScore,
+    lpA,
+    apoB,
+  } = input
 
-  let riskLevel: RiskLevel
+  const strongFamilyHistory = Boolean(familyHistoryPrematureASCVD || fh)
+  const stage3Plus = hasStage3PlusCkd(ckd)
+  const advancedCkd = hasAdvancedCkd(ckd)
+  const elevatedLpA = lpA !== undefined && lpA !== null && lpA >= 50
+  const elevatedApoB = apoB !== undefined && apoB !== null && apoB >= 130
+  const riskEnhancerCount = [
+    strongFamilyHistory,
+    stage3Plus,
+    input.tg >= 175,
+    elevatedLpA,
+    elevatedApoB,
+  ].filter(Boolean).length
+  const hasRiskEnhancer = riskEnhancerCount > 0
+
+  let riskLevel: RiskLevel = 'low'
   let ldlTarget: number | null = null
-  let ldlTargetText: string
+  let nonHdlTarget: number | null = null
+  let ldlTargetText = '以飲食運動調整為主'
   let notes: string | undefined
   let tenYearRisk: number | undefined
+  let riskModel: string | undefined
   let pathway: string | undefined
   let ldlReductionPercentMin: number | undefined
   let ldlReductionPercentMax: number | undefined
 
-  const hasRiskEnhancer = fh || ckd === 'G3a' || ckd === 'G3b' || ckd === 'G4' || ckd === 'G5' || input.tg >= 175
-
+  // 1) Secondary prevention
   if (ascvd) {
-    pathway = 'secondary-prevention'
-    riskLevel = 'very-high'
-    ldlTargetText = '高強度 statin；LDL-C 建議至少降低 50%'
-    ldlReductionPercentMin = 50
-    ldlReductionPercentMax = 50
-    notes = '屬二級預防。ACC/AHA 重點是高強度或最大可耐受 statin，優先看 LDL 降幅（≥50%）；不是所有 ASCVD 都有固定 LDL < 70 mg/dL 目標。'
-  } else if (age >= 20 && age <= 75 && ldl >= 190) {
-    pathway = 'severe-hypercholesterolemia'
-    riskLevel = 'high'
-    ldlTargetText = '最大可耐受 statin；LDL-C 建議至少降低 50%'
-    ldlReductionPercentMin = 50
-    ldlReductionPercentMax = 50
-    notes = fh
-      ? '屬 severe hypercholesterolemia / FH 情境。ACC/AHA 重點是最大可耐受 statin、LDL 至少降低 50%；若治療後 LDL 仍 ≥ 100 mg/dL，可考慮加藥。'
-      : '屬 severe hypercholesterolemia。ACC/AHA 重點是最大可耐受 statin、LDL 至少降低 50%；若治療後 LDL 仍 ≥ 100 mg/dL，可考慮加藥。'
-  } else if (dm && age >= 40 && age <= 75 && ldl >= 70 && ldl <= 189) {
-    pathway = 'diabetes-primary-prevention'
-    const higherRiskDiabetes = age >= 50 || hasRiskEnhancer
-    riskLevel = higherRiskDiabetes ? 'high' : 'moderate'
-    ldlTargetText = higherRiskDiabetes
-      ? '至少中高強度 statin；LDL-C 可考慮降低約 50%'
-      : '至少中等強度 statin；LDL-C 建議降低 30–49%'
-    ldlReductionPercentMin = higherRiskDiabetes ? 50 : 30
-    ldlReductionPercentMax = higherRiskDiabetes ? 50 : 49
-    notes = higherRiskDiabetes
-      ? '糖尿病 40–75 歲且風險較高時，可考慮高強度 statin。ACC/AHA 對此族群重點是 statin 強度與 LDL 降幅，不是固定 LDL < 70 mg/dL。'
-      : '糖尿病 40–75 歲族群，ACC/AHA 建議至少中等強度 statin；重點是 LDL 降幅，不是固定 LDL < 70 mg/dL。'
-  } else if (age >= 20 && age <= 39) {
-    pathway = 'young-adult'
-    riskLevel = fh || ldl >= 160 ? 'moderate' : 'low'
-    if (ldl >= 160 && fh) {
-      ldlTargetText = '可考慮 statin；以生活型態調整為基礎'
-      notes = '20–39 歲族群以 lifestyle 為主；若 LDL ≥ 160 且合併早發 ASCVD 家族風險情境，可考慮 statin。現階段以 FH 作近似替代提示。'
-    } else {
-      ldlTargetText = '以飲食運動調整為主'
-      notes = '20–39 歲族群以 heart-healthy lifestyle 為主；除非有明顯早發 ASCVD 家族史或 LDL 顯著偏高。'
-    }
-  } else if (!dm && age >= 40 && age <= 75 && ldl >= 70 && ldl <= 189 && sbp > 0) {
-    pathway = 'primary-prevention-pce'
-    tenYearRisk = calcPCE(input)
-    if (tenYearRisk >= 20) {
-      riskLevel = 'high'
-      ldlTargetText = '建議高強度 statin；LDL-C 至少降低 50%'
+    pathway = 'secondary-prevention-2026'
+    riskModel = '2026 ACC/AHA treatment pathway'
+
+    const veryHighRiskAscvd = advancedCkd || dm || fh || (cacScore !== null && cacScore !== undefined && cacScore >= 1000)
+
+    if (veryHighRiskAscvd) {
+      riskLevel = 'extreme'
+      ldlTarget = 55
+      nonHdlTarget = 85
+      ldlTargetText = '高強度或最大可耐受 statin；若未達標應加 ezetimibe / PCSK9；目標 LDL-C <55、non-HDL-C <85，並至少降低 50%'
       ldlReductionPercentMin = 50
       ldlReductionPercentMax = 50
-      notes = 'PCE 屬高風險時，ACC/AHA 偏向高強度 statin，重點是 LDL 降幅 ≥ 50%。'
-    } else if (tenYearRisk >= 7.5) {
+      notes = '屬 2026 ACC/AHA 二級預防較高風險分支。clinical ASCVD 合併 CKD stage 3b+、糖尿病、FH 或極高 CAC 等條件時，治療應更積極，目標可拉到 LDL-C <55、non-HDL-C <85。'
+    } else {
+      riskLevel = 'very-high'
+      ldlTarget = 70
+      nonHdlTarget = 100
+      ldlTargetText = '高強度 statin；目標 LDL-C <70、non-HDL-C <100，並至少降低 50%'
+      ldlReductionPercentMin = 50
+      ldlReductionPercentMax = 50
+      notes = '屬 2026 ACC/AHA 二級預防。clinical ASCVD 的基準治療是 high-intensity statin，目標 LDL-C <70、non-HDL-C <100；若仍未達標，可考慮加 ezetimibe / PCSK9 / bempedoic acid。'
+    }
+  }
+  // 2) Severe hypercholesterolemia / FH
+  else if (age >= 20 && ldl >= 190) {
+    pathway = 'severe-hypercholesterolemia-2026'
+    riskModel = '2026 ACC/AHA treatment pathway'
+    ldlReductionPercentMin = 50
+    ldlReductionPercentMax = 50
+
+    if (fh || hasRiskEnhancer || (cacScore !== null && cacScore !== undefined && cacScore > 0)) {
+      riskLevel = 'very-high'
+      ldlTarget = 70
+      nonHdlTarget = 100
+      ldlTargetText = '最大可耐受 statin；若未達標可加 ezetimibe / PCSK9 / bempedoic acid；目標 LDL-C <70、non-HDL-C <100，並至少降低 50%'
+      notes = '2026 ACC/AHA 對 LDL-C ≥190 mg/dL 且合併 HeFH、額外 risk factors 或 CAC 證據者，治療目標較積極，建議朝 LDL-C <70、non-HDL-C <100 前進。'
+    } else {
+      riskLevel = 'high'
+      ldlTarget = 100
+      nonHdlTarget = 130
+      ldlTargetText = '最大可耐受 statin；若未達標可加 ezetimibe / PCSK9 / bempedoic acid；目標 LDL-C <100、non-HDL-C <130，並至少降低 50%'
+      notes = '2026 ACC/AHA 對 severe hypercholesterolemia（LDL-C ≥190）不再只是看降幅，也明確納入 LDL-C <100、non-HDL-C <130 的治療目標。'
+    }
+  }
+  // 3) Diabetes primary prevention
+  else if (dm && age >= 40 && age <= 75) {
+    pathway = 'diabetes-primary-prevention-2026'
+    riskModel = '2026 ACC/AHA treatment pathway'
+
+    const higherRiskDiabetes = age >= 50 || riskEnhancerCount >= 1 || stage3Plus
+    if (higherRiskDiabetes) {
+      riskLevel = 'high'
+      ldlTarget = 70
+      nonHdlTarget = 100
+      ldlTargetText = '至少中高強度 statin；目標 LDL-C <70、non-HDL-C <100，並至少降低 50%'
+      ldlReductionPercentMin = 50
+      ldlReductionPercentMax = 50
+      notes = '2026 ACC/AHA 對糖尿病且合併較高風險條件者，建議使用較積極的 lipid lowering strategy，目標 LDL-C <70、non-HDL-C <100。'
+    } else {
       riskLevel = 'moderate'
-      ldlTargetText = hasRiskEnhancer
-        ? '建議中等強度 statin；若風險增強因子明顯可更積極，LDL-C 約降 30–49%'
-        : '建議中等強度 statin；LDL-C 約降低 30–49%'
+      ldlTarget = 100
+      nonHdlTarget = 130
+      ldlTargetText = '至少中等強度 statin；目標 LDL-C <100、non-HDL-C <130，並降低 30–49%'
       ldlReductionPercentMin = 30
       ldlReductionPercentMax = 49
-      notes = hasRiskEnhancer
-        ? '屬 intermediate risk，且有 risk enhancers（如 CKD / FH / TG ≥ 175），較支持啟動或加強 statin。'
-        : '屬 intermediate risk。ACC/AHA 通常建議中等強度 statin，重點是 LDL 降幅約 30–49%。'
-    } else if (tenYearRisk >= 5) {
+      notes = '2026 ACC/AHA 對 40–75 歲糖尿病 primary prevention 已重新納入明確 LDL-C / non-HDL-C 目標，不再只是單看 statin intensity。'
+    }
+  }
+  // 4) CKD stage 3+ primary prevention
+  else if (age >= 40 && age <= 75 && stage3Plus) {
+    pathway = 'ckd-primary-prevention-2026'
+    riskModel = '2026 ACC/AHA treatment pathway'
+
+    if (advancedCkd) {
+      riskLevel = 'high'
+      ldlTarget = 70
+      nonHdlTarget = 100
+      ldlTargetText = '至少中高強度 statin；目標 LDL-C <70、non-HDL-C <100，並至少降低 50%'
+      ldlReductionPercentMin = 50
+      ldlReductionPercentMax = 50
+      notes = '2026 ACC/AHA 對 CKD stage 3b–5 primary prevention 的地位較高，已不是單純 risk enhancer。'
+    } else {
       riskLevel = 'moderate'
-      ldlTargetText = hasRiskEnhancer
-        ? '可考慮中等強度 statin；若啟動治療，LDL-C 約降低 30–49%'
-        : '以飲食運動調整為主；若需用藥應先和醫師討論'
-      ldlReductionPercentMin = hasRiskEnhancer ? 30 : undefined
-      ldlReductionPercentMax = hasRiskEnhancer ? 49 : undefined
-      notes = hasRiskEnhancer
-        ? '屬 borderline risk。只有在存在 risk enhancers 時，ACC/AHA 才較支持考慮 statin。'
-        : '屬 borderline risk，但若無明顯 risk enhancers，ACC/AHA 通常仍以 lifestyle 為主。'
+      ldlTarget = 100
+      nonHdlTarget = 130
+      ldlTargetText = '建議至少中等強度 statin；目標 LDL-C <100、non-HDL-C <130，並降低 30–49%'
+      ldlReductionPercentMin = 30
+      ldlReductionPercentMax = 49
+      notes = 'CKD stage 3a 在 2026 ACC/AHA 中應被納入更積極的 primary prevention 討論，而不只是附註性 risk enhancer。'
+    }
+  }
+  // 5) Young adults 20–39
+  else if (age >= 20 && age <= 39) {
+    pathway = 'young-adult-2026'
+    riskModel = '2026 ACC/AHA treatment pathway'
+
+    if (ldl >= 160 || strongFamilyHistory) {
+      riskLevel = 'moderate'
+      ldlTargetText = '可考慮啟動 statin；重點是及早降低 lifetime LDL exposure，並評估是否需朝 LDL-C <100（若風險訊號明顯可更積極）'
+      if (ldl >= 160) {
+        ldlTarget = 100
+        nonHdlTarget = 130
+      }
+      notes = '2026 ACC/AHA 對年輕成人更重視早期介入。若 LDL-C ≥160 或有早發 ASCVD 家族史，應考慮比過去更早開始 pharmacotherapy。'
     } else {
       riskLevel = 'low'
-      ldlTargetText = '以飲食運動調整為主'
-      notes = '屬低風險。ACC/AHA 對此情境以 heart-healthy lifestyle 為主。'
+      ldlTargetText = '以 lifestyle 為主，定期追蹤 LDL-C 與整體代謝風險'
+      notes = '20–39 歲若無明顯高風險訊號，2026 ACC/AHA 仍以 lifestyle 為基礎。'
     }
-  } else {
+  }
+  // 6) Primary prevention with PREVENT-style bins (transitional estimate)
+  else if (!dm && age >= 30 && age <= 79 && ldl >= 70 && ldl <= 189) {
+    pathway = 'primary-prevention-prevent-2026'
+    riskModel = 'PREVENT-ASCVD estimate (transitional)'
+    tenYearRisk = calcPreventEstimate(input)
+
+    if (tenYearRisk >= 10) {
+      riskLevel = 'high'
+      ldlTarget = 70
+      nonHdlTarget = 100
+      ldlTargetText = '建議高強度 statin；目標 LDL-C <70、non-HDL-C <100，並至少降低 50%'
+      ldlReductionPercentMin = 50
+      ldlReductionPercentMax = 50
+      notes = '依 2026 ACC/AHA 的 PREVENT-ASCVD 架構，高風險 primary prevention 應以 high-intensity statin 為主，並以 LDL-C <70、non-HDL-C <100 作為治療目標。'
+    } else if (tenYearRisk >= 5) {
+      riskLevel = 'moderate'
+      ldlTarget = 100
+      nonHdlTarget = 130
+      ldlTargetText = '至少中等強度 statin；目標 LDL-C <100、non-HDL-C <130，並降低 30–49%'
+      ldlReductionPercentMin = 30
+      ldlReductionPercentMax = 49
+      notes = '依 2026 ACC/AHA，intermediate risk（5%–<10%）應至少考慮 moderate-intensity statin，並以 LDL-C <100、non-HDL-C <130 為治療目標。'
+    } else if (tenYearRisk >= 3) {
+      riskLevel = 'moderate'
+      ldlTarget = 100
+      nonHdlTarget = 130
+      if (hasRiskEnhancer || (cacScore !== null && cacScore !== undefined && cacScore > 0)) {
+        ldlTargetText = '可考慮中等強度 statin；若治療，目標 LDL-C <100、non-HDL-C <130，並降低 30–49%'
+        ldlReductionPercentMin = 30
+        ldlReductionPercentMax = 49
+        notes = '依 2026 ACC/AHA，borderline risk（3%–<5%）在合併 risk enhancers、Lp(a)/apoB 異常或 CAC >0 時，可更支持啟動 statin。'
+      } else {
+        ldlTargetText = '先以 lifestyle 為主；若有更多風險證據（如 CAC >0、Lp(a) 高）再考慮 statin'
+        notes = 'borderline risk 族群不應自動進入用藥；2026 ACC/AHA 仍強調 shared decision-making 與 risk refinement。'
+      }
+    } else {
+      riskLevel = 'low'
+      if (ldl >= 160 || strongFamilyHistory) {
+        ldlTarget = 100
+        nonHdlTarget = 130
+        ldlTargetText = '以 lifestyle 為主；若 LDL-C 160–189 或 lifetime risk 較高，可考慮 moderate-intensity statin，目標 LDL-C <100、non-HDL-C <130'
+        notes = '即使 10 年風險偏低，2026 ACC/AHA 對 LDL-C 160–189 或 lifetime risk 較高者也允許較早介入。'
+      } else {
+        ldlTargetText = '以 lifestyle 為主'
+        notes = '依 2026 ACC/AHA，low risk primary prevention 以 heart-healthy lifestyle 為主。'
+      }
+    }
+
+    if (cacScore !== null && cacScore !== undefined) {
+      if (cacScore === 0) {
+        notes += ' CAC = 0 時，若無其他高風險訊號，可考慮延後藥物治療並於 3–7 年後重新評估。'
+      } else if (cacScore >= 1 && cacScore < 100) {
+        notes += ' CAC 1–99 代表已可支持啟動 moderate-intensity statin。'
+      } else if (cacScore >= 100 && cacScore < 300) {
+        ldlTarget = 70
+        nonHdlTarget = 100
+        riskLevel = RISK_ORDER[riskLevel] >= RISK_ORDER['high'] ? riskLevel : 'high'
+        notes += ' CAC ≥100 時，2026 ACC/AHA 支持把治療目標提升到 LDL-C <70、non-HDL-C <100。'
+      } else if (cacScore >= 300) {
+        ldlTarget = 55
+        nonHdlTarget = 85
+        riskLevel = 'extreme'
+        ldlReductionPercentMin = 50
+        ldlReductionPercentMax = 50
+        notes += ' CAC ≥300 時風險顯著上升，合理朝 LDL-C <55、non-HDL-C <85 intensify。'
+      }
+    }
+  }
+  // 7) fallback
+  else {
     pathway = 'lifestyle-only'
+    riskModel = '2026 ACC/AHA treatment pathway'
     riskLevel = 'low'
-    ldlTargetText = '以飲食運動調整為主（不屬於 ACC/AHA 主要 statin 決策情境）'
-    notes = '目前資料不足，或不在 ACC/AHA 主要 statin treatment pathway 內；建議以 lifestyle 為主並和醫師討論。'
+    ldlTargetText = '以飲食運動調整為主（不屬於 2026 ACC/AHA 主要 statin 分流情境）'
+    notes = '目前資料不足，或不在 2026 ACC/AHA 主要 statin treatment pathway 內；建議以 lifestyle 為主並與醫師討論。'
   }
 
   return {
     guideline: 'accaha',
     riskLevel,
     ldlTarget,
+    nonHdlTarget,
     ldlTargetText,
     currentLdl: input.ldl,
-    achieved: null,
-    notes: notes ?? '注意：此風險計算以美國族群為基準，台灣用戶數值僅供參考',
+    achieved: ldlTarget !== null ? input.ldl < ldlTarget : null,
+    notes,
     tenYearRisk,
+    riskModel,
     pathway,
     ldlReductionPercentMin,
     ldlReductionPercentMax,
   }
+}
+
+const RISK_ORDER: Record<RiskLevel, number> = {
+  low: 0,
+  moderate: 1,
+  high: 2,
+  'very-high': 3,
+  extreme: 4,
 }

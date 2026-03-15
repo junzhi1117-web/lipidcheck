@@ -1,10 +1,10 @@
 interface Props {
-  pce: number | null
+  accaha: number | null
   score2: number | null
 }
 
-export function TenYearRiskCard({ pce, score2 }: Props) {
-  if (pce === null && score2 === null) return null
+export function TenYearRiskCard({ accaha, score2 }: Props) {
+  if (accaha === null && score2 === null) return null
 
   return (
     <div style={{
@@ -24,15 +24,14 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
       </div>
 
       <div style={{ display: 'flex', padding: '16px' }}>
-        {/* PCE column */}
         <div style={{ flex: 1, textAlign: 'center', borderRight: '1px solid #F0F0F0', paddingRight: '16px' }}>
           <div style={{ fontSize: '0.72rem', color: '#9AA0A6', fontWeight: 600, marginBottom: '8px' }}>
-            PCE（ACC/AHA）
+            PREVENT-ASCVD（ACC/AHA）
           </div>
-          {pce !== null ? (
+          {accaha !== null ? (
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '2px' }}>
               <span style={{ fontSize: '2rem', fontWeight: 800, color: '#1A1A1A', lineHeight: 1 }}>
-                {pce}
+                {accaha}
               </span>
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#64748B' }}>%</span>
             </div>
@@ -43,7 +42,6 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
           )}
         </div>
 
-        {/* SCORE2 column */}
         <div style={{ flex: 1, textAlign: 'center', paddingLeft: '16px' }}>
           <div style={{ fontSize: '0.72rem', color: '#9AA0A6', fontWeight: 600, marginBottom: '8px' }}>
             SCORE2（ESC）
@@ -63,7 +61,6 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
         </div>
       </div>
 
-      {/* Warning */}
       <div style={{
         margin: '0 16px 16px',
         backgroundColor: '#FFF8E6',
@@ -76,7 +73,7 @@ export function TenYearRiskCard({ pce, score2 }: Props) {
       }}>
         <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>⚠️</span>
         <div style={{ fontSize: '0.72rem', color: '#664D00', lineHeight: 1.65 }}>
-          以上數字以西方族群（美國/歐洲）為驗證基準。研究顯示台灣人的實際心血管風險可能低於此預測值 20–40%，僅供與醫師討論參考，請勿作為獨立診斷依據。
+          ACC/AHA 2026 已改採 PREVENT-ASCVD 架構。本版先用過渡性估算支援治療分流，方向上較接近 2026 新門檻；實際數值仍只適合拿來與醫師討論，不建議單獨作為診斷依據。
         </div>
       </div>
     </div>

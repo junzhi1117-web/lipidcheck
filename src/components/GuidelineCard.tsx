@@ -13,7 +13,7 @@ const GUIDELINE_NAMES = {
 
 const GUIDELINE_YEARS = {
   taiwan: '2025',
-  accaha: '2018/2025',
+  accaha: '2026',
   esceas: '2025',
 }
 
@@ -30,11 +30,13 @@ const GUIDELINE_COLORS: Record<string, string> = {
 }
 
 export function GuidelineCard({ result }: Props) {
-  const { guideline, riskLevel, ldlTargetText, ldlTarget, currentLdl, achieved, tenYearRisk, notes } = result
+  const { guideline, riskLevel, ldlTargetText, ldlTarget, nonHdlTarget, currentLdl, achieved, tenYearRisk, riskModel, notes } = result
   const barColor = GUIDELINE_COLORS[guideline]
 
+  const hasFixedTarget = ldlTarget !== null
+
   // LDL progress bar
-  const maxBar = ldlTarget !== null ? Math.max(ldlTarget * 1.8, currentLdl * 1.1, 200) : null
+  const maxBar = hasFixedTarget ? Math.max(ldlTarget * 1.8, currentLdl * 1.1, 200) : null
   const targetPct = maxBar && ldlTarget !== null ? Math.min((ldlTarget / maxBar) * 100, 95) : null
   const currentPct = maxBar ? Math.min((currentLdl / maxBar) * 100, 98) : null
 
@@ -48,11 +50,9 @@ export function GuidelineCard({ result }: Props) {
       overflow: 'hidden',
       border: '1px solid #E2E8F0',
     }}>
-      {/* Guideline-specific color bar */}
       <div style={{ height: '4px', backgroundColor: barColor }} />
 
       <div style={{ padding: '16px' }}>
-        {/* Guideline name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
           <span style={{ fontSize: '1.2rem' }}>{GUIDELINE_FLAGS[guideline]}</span>
           <div>
@@ -65,29 +65,30 @@ export function GuidelineCard({ result }: Props) {
           </div>
         </div>
 
-        {/* Risk level */}
         <div style={{ marginBottom: '12px' }}>
           <RiskBadge level={riskLevel} size="sm" />
         </div>
 
-        {/* LDL target / treatment direction */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
-            {guideline === 'accaha' && ldlTarget === null ? '治療方向' : '建議目標值'}
+            {guideline === 'accaha' && !hasFixedTarget ? '治療方向' : '建議目標值'}
           </div>
           <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0A2540', lineHeight: 1.4 }}>
             {ldlTargetText}
           </div>
+          {guideline === 'accaha' && nonHdlTarget !== undefined && nonHdlTarget !== null && (
+            <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '6px' }}>
+              non-HDL-C 目標：{'<'} {nonHdlTarget} mg/dL
+            </div>
+          )}
         </div>
 
-        {/* LDL progress bar */}
-        {ldlTarget !== null && targetPct !== null && currentPct !== null && (
+        {hasFixedTarget && targetPct !== null && currentPct !== null && (
           <div style={{ marginBottom: '12px' }}>
             <div style={{
               position: 'relative', height: '8px', backgroundColor: '#F0F0F0',
               borderRadius: '99px', overflow: 'visible', margin: '8px 0 18px',
             }}>
-              {/* Target line */}
               <div style={{
                 position: 'absolute', left: `${targetPct}%`,
                 top: '-3px', bottom: '-3px', width: '2px',
@@ -98,7 +99,6 @@ export function GuidelineCard({ result }: Props) {
                 top: '12px', transform: 'translateX(-50%)',
                 fontSize: '0.62rem', color: '#10B981', fontWeight: 600, whiteSpace: 'nowrap',
               }}>目標 &lt;{ldlTarget}</div>
-              {/* Current value indicator */}
               <div style={{
                 position: 'absolute', left: `${currentPct}%`,
                 top: '-4px', width: '16px', height: '16px',
@@ -113,7 +113,6 @@ export function GuidelineCard({ result }: Props) {
                 fontSize: '0.62rem', color: achieved ? '#10B981' : '#EF4444',
                 fontWeight: 600, whiteSpace: 'nowrap',
               }}>您：{currentLdl}</div>
-              {/* Fill track */}
               <div style={{
                 position: 'absolute', left: 0,
                 width: `${currentPct}%`, height: '8px',
@@ -124,8 +123,7 @@ export function GuidelineCard({ result }: Props) {
           </div>
         )}
 
-        {/* Achievement status */}
-        {achieved !== null && (
+        {achieved !== null && hasFixedTarget && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '6px',
             padding: '7px 10px', borderRadius: '8px',
@@ -139,14 +137,12 @@ export function GuidelineCard({ result }: Props) {
           </div>
         )}
 
-        {/* 10-year risk */}
         {tenYearRisk !== undefined && (
           <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#64748B' }}>
-            未來 10 年心血管風險（參考值）：<strong>{tenYearRisk}%</strong>
+            {riskModel ?? '風險模型'}：<strong>{tenYearRisk}%</strong>
           </div>
         )}
 
-        {/* Notes */}
         {notes && (
           <div style={{
             marginTop: '10px', fontSize: '0.72rem', color: '#475569',

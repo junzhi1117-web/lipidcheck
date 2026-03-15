@@ -12,6 +12,10 @@ export interface UserInput {
   dm: boolean
   ckd: 'none' | 'G1' | 'G2' | 'G3a' | 'G3b' | 'G4' | 'G5'
   fh: boolean
+  familyHistoryPrematureASCVD?: boolean
+  cacScore?: number | null
+  lpA?: number | null
+  apoB?: number | null
   ldlSource?: 'measured' | 'friedewald'
 }
 
@@ -21,11 +25,13 @@ export interface GuidelineResult {
   guideline: 'taiwan' | 'accaha' | 'esceas'
   riskLevel: RiskLevel
   ldlTarget: number | null
+  nonHdlTarget?: number | null
   ldlTargetText: string
   currentLdl: number
   achieved: boolean | null
   notes?: string
   tenYearRisk?: number
+  riskModel?: string
   pathway?: string
   ldlReductionPercentMin?: number
   ldlReductionPercentMax?: number
@@ -57,7 +63,7 @@ export interface AnalysisResult {
     esceas: { needed: number; percent: number; achieved: boolean } | null
   }
   tenYearRisk: {
-    pce: number | null
+    accaha: number | null
     score2: number | null
   }
   recommendations: {

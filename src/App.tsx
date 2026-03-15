@@ -25,6 +25,10 @@ function parseUrlParams(): Partial<UserInput> | null {
   const dm = params.get('dm')
   const ckd = params.get('ckd') as UserInput['ckd'] | null
   const fh = params.get('fh')
+  const fhPremature = params.get('fhPrem')
+  const cac = params.get('cac')
+  const lpa = params.get('lpa')
+  const apob = params.get('apob')
 
   if (!sex || isNaN(age) || isNaN(tc) || isNaN(ldl) || isNaN(hdl) || isNaN(tg)) return null
 
@@ -42,6 +46,10 @@ function parseUrlParams(): Partial<UserInput> | null {
     dm: dm === '1',
     ckd: ckd && ['none', 'G1', 'G2', 'G3a', 'G3b', 'G4', 'G5'].includes(ckd) ? ckd : 'none',
     fh: fh === '1',
+    familyHistoryPrematureASCVD: fhPremature === '1',
+    cacScore: cac ? parseFloat(cac) : null,
+    lpA: lpa ? parseFloat(lpa) : null,
+    apoB: apob ? parseFloat(apob) : null,
   }
 }
 
@@ -60,6 +68,10 @@ function writeUrlParams(input: UserInput) {
   params.set('dm', input.dm ? '1' : '0')
   params.set('ckd', input.ckd)
   params.set('fh', input.fh ? '1' : '0')
+  if (input.familyHistoryPrematureASCVD) params.set('fhPrem', '1')
+  if (input.cacScore !== undefined && input.cacScore !== null && !Number.isNaN(input.cacScore)) params.set('cac', String(input.cacScore))
+  if (input.lpA !== undefined && input.lpA !== null && !Number.isNaN(input.lpA)) params.set('lpa', String(input.lpA))
+  if (input.apoB !== undefined && input.apoB !== null && !Number.isNaN(input.apoB)) params.set('apob', String(input.apoB))
   const newUrl = `${window.location.pathname}?${params.toString()}`
   history.replaceState(null, '', newUrl)
 }

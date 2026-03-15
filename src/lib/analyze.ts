@@ -36,9 +36,9 @@ export function analyze(input: UserInput): AnalysisResult {
   if (strictestTarget !== null) {
     const achieved = input.ldl < strictestTarget
     if (achieved) {
-      summary = `很好！您的膽固醇（${input.ldl} mg/dL）已符合三大指引中最嚴格的目標（< ${strictestTarget} mg/dL）。繼續保持現在的生活習慣就對了。`
+      summary = `很好！您的 LDL-C（${input.ldl} mg/dL）已符合三大指引中最嚴格的目標（< ${strictestTarget} mg/dL）。繼續保持現在的生活習慣就對了。`
     } else {
-      summary = `您的膽固醇（${input.ldl} mg/dL）目前超過建議目標（< ${strictestTarget} mg/dL）。建議找醫師聊聊，討論飲食調整或是否需要用藥。`
+      summary = `您的 LDL-C（${input.ldl} mg/dL）目前超過建議目標（< ${strictestTarget} mg/dL）。建議找醫師聊聊，討論飲食調整、是否需要 statin，或是否要更積極加強治療。`
     }
     if (!consistent) {
       summary += '（三大指引對您的風險評估略有差異，本建議採用最嚴格的標準。）'
@@ -68,7 +68,6 @@ export function analyze(input: UserInput): AnalysisResult {
 
   // Non-HDL cholesterol
   const nonHdlValue = input.tc - input.hdl
-  const accahaLdlTarget = accaha.ldlTarget
 
   // ESC/EAS non-HDL targets by risk level
   const esceasNonHdlTargets: Record<RiskLevel, number> = {
@@ -81,10 +80,14 @@ export function analyze(input: UserInput): AnalysisResult {
 
   const nonHdl = {
     value: nonHdlValue,
-    accahaTarget: accahaLdlTarget !== null ? accahaLdlTarget + 30 : null,
+    accahaTarget: accaha.nonHdlTarget ?? (accaha.ldlTarget !== null ? accaha.ldlTarget + 30 : null),
     esceasTarget: esceasNonHdlTargets[esceas.riskLevel],
     taiwanTarget: null as null,
-    accahaAchieved: accahaLdlTarget !== null ? nonHdlValue < (accahaLdlTarget + 30) : null,
+    accahaAchieved: accaha.nonHdlTarget !== undefined && accaha.nonHdlTarget !== null
+      ? nonHdlValue < accaha.nonHdlTarget
+      : accaha.ldlTarget !== null
+        ? nonHdlValue < (accaha.ldlTarget + 30)
+        : null,
     esceasAchieved: nonHdlValue < esceasNonHdlTargets[esceas.riskLevel],
   }
 
@@ -125,7 +128,7 @@ export function analyze(input: UserInput): AnalysisResult {
 
   // Ten-year risk
   const tenYearRisk = {
-    pce: accaha.tenYearRisk ?? null,
+    accaha: accaha.tenYearRisk ?? null,
     score2: esceas.tenYearRisk ?? null,
   }
 
