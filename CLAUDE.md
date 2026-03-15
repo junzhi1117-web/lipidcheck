@@ -18,6 +18,7 @@
 ```bash
 pnpm dev
 pnpm build
+pnpm regression
 ```
 
 ## Design System
@@ -39,15 +40,16 @@ pnpm build
 1. 非 HDL-C 計算（TC − HDL，自動顯示各指引目標）
 2. LDL 降幅百分比（「還需降 X mg/dL (Y%)」）
 3. URL 分享（輸入值 encode 進 query string）
-4. 10 年 CVD 風險（PCE / SCORE2 已計算，含西方族群免責聲明）
-5. 歷史記錄
+4. 10 年 CVD 風險（ACC/AHA: PREVENT-ASCVD；ESC: SCORE2）
+5. BMI 自動計算（身高 + 體重）
+6. 歷史記錄
 
 ## Guidelines 邏輯
 
-| 指引 | 版本 | 來源 |
+| 指引 | 版本 | 來源 / 備註 |
 |------|------|------|
-| 台灣 | 2024 | 內科學誌 2024:35:426-430（李貽恒）|
-| ACC/AHA | 2022 | PCE 算法，亞裔族群高估 20-40% |
+| 台灣 | 2025 | 台灣血脂管理臨床路徑共識 |
+| ACC/AHA | 2026 | treatment tree + PREVENT-ASCVD 10-year base model |
 | ESC/EAS | 2025 | 極高風險 LDL <40 mg/dL |
 
 **關鍵 files**：`lib/guidelines/taiwan.ts`, `accaha.ts`, `esceas.ts`, `analyze.ts`, `types.ts`
@@ -55,8 +57,9 @@ pnpm build
 ## 醫學驗證規則
 
 - 任何判讀邏輯修改**必須先確認醫學正確性**（俊智確認或 Medical agent 驗證）
-- 10 案例醫學驗證已全通過，新功能需同等驗證
-- PCE/SCORE2 顯示必須附黃色警示框：「此數字以西方族群為基準，台灣實際風險可能偏低，僅供與醫師討論參考。」
+- 新功能至少要補 representative regression cases
+- ACC/AHA 風險卡顯示的是 PREVENT-ASCVD；若缺少身高/體重（BMI）、eGFR、statin use，就不可硬算
+- SCORE2 顯示仍需附歐洲族群基準的提醒
 
 ## 待討論功能（實作前必須確認）
 
@@ -67,5 +70,6 @@ pnpm build
 ## Critical Rules
 
 - 血脂判讀邏輯依據三大指引（ACC/AHA, ESC/EAS, 台灣）
+- ACC/AHA 現在以 2026 路徑為準，不要再寫回舊 PCE / 2018 主架構
 - 指引來源：預設折疊 accordion 顯示
 - 不要修改 Layout（已定稿）

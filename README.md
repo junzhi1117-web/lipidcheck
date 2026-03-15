@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# LipidCheck
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+三大指引血脂判讀工具 PWA，定位是給醫師與一般使用者一起討論風險與治療方向的臨床決策輔助工具。
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS v4
+- PWA (`vite-plugin-pwa`)
+- pnpm
 
-## React Compiler
+## Common Commands
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm dev
+pnpm build
+pnpm regression
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Current Guideline Coverage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Guideline | Version | Notes |
+|---|---|---|
+| 台灣 | 2025 | LDL 目標導向 |
+| ACC/AHA | 2026 | 已升級為 2026 treatment tree + 10-year PREVENT-ASCVD base model |
+| ESC/EAS | 2025 | SCORE2 / SCORE2-OP simplified regional approximation |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## ACC/AHA 2026 status
+
+已完成：
+- 2026 treatment pathway 重構
+- secondary prevention / LDL ≥190 / diabetes / CKD / young adult / CAC 分流
+- LDL-C + non-HDL-C 雙目標輸出
+- 10-year PREVENT-ASCVD base model
+- BMI 改為身高 + 體重自動計算
+- 缺少 PREVENT 必要輸入時不硬算風險
+
+PREVENT 必要輸入：
+- 身高 / 體重（系統自動算 BMI）
+- eGFR
+- statin use
+
+## Validation
+
+代表性 ACC/AHA regression cases 已納入：
+- secondary prevention ASCVD
+- severe hypercholesterolemia (LDL ≥190)
+- PREVENT primary prevention
+- CAC ≥300 intensification
+- missing PREVENT inputs fallback
+
+執行：
+```bash
+pnpm regression
 ```
+
+## Important Notes
+
+- 本工具僅供衛教與 shared decision-making 參考，不取代醫師診斷。
+- ACC/AHA 已不再使用舊 PCE 文案；primary prevention 以 PREVENT-ASCVD 為主。
+- 台灣與 ESC/EAS 分支目前仍維持各自既有架構。
